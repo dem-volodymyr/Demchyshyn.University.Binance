@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-yz@arq$5207orb+c0+5jto_#9-l==yw^#vhjw$0vz2_!!=@fer
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['binancexchange.azurewebsites.net', '127.0.0.1']
 
 
 # Application definition
