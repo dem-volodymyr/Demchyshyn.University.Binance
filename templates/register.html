@@ -1,0 +1,34 @@
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="main">
+        <div class="container a-container" id="a-container">
+            <form id="a-form" class="form" method="" action="">
+                <h2 class="form_title title">BinanceXchange</h2>
+                <div class="form__field">
+                    <input class="form__input" type="text" placeholder="Username" required>
+                </div>
+                <div class="form__field">
+                    <input class="form__input" type="email" placeholder="Email Address" required>
+                </div>
+                <div class="form__field">
+                    <input class="form__input" type="password" placeholder="Password" required>
+                </div>
+                <button class="form__button button">
+                    <a href="{% provider_login_url 'google'%}?next=/">
+                        <i class="fab fa-google"></i>Login with Google
+                    </a>
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
