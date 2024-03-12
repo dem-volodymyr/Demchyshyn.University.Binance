@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from binance_register import views
+from exchange_table.views import exchange_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,5 +25,6 @@ urlpatterns = [
     path('binance_register/', include("allauth.urls")),
     path('accounts/google/login/callback/', views.callback_view, name='google_callback'),
     path('', views.home, name='home'),  # Home page
+    path('tables/', exchange_view, name='table'),
 ]
 

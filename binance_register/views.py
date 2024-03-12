@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+import requests
 
 # Create your views here.
 
@@ -16,4 +17,5 @@ def register(request):
 
 
 def callback_view(request):
-    return redirect(reverse('home'))
+    return redirect(reverse('table'))
+

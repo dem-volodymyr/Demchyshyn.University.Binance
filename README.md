@@ -39,9 +39,9 @@ Week 1:
    - Define database schema✔️
 
 Week 2:
-   - Implement feature: Trading Dashboard
-   - Develop user interface for dashboard components
-   - Integrate real-time market data APIs
+   - Implement feature: Trading Dashboard✔️
+   - Develop user interface for dashboard components✔️
+   - Integrate real-time market data APIs✔️
    - Implement basic trading functionalities
-   - Conduct initial performance testing
+   - Conduct initial performance testing✔️
 
