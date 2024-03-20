@@ -46,9 +46,9 @@ Week 2:
    - Implement basic trading functionalities
    - Conduct initial performance testing✔️
 
-Week 3:
-     - Implement feature: Wallet Management ✔️
-     - Design wallet interface for managing balances and transactions ✔️
-     - Implement cryptocurrency wallet functionalities ✔️
-     - Integrate transaction processing system ✔️
-     - Conduct security review of wallet management features ✔️
+Week 3:  
+   - Implement feature: Wallet Management ✔️
+   - Design wallet interface for managing balances and transactions ✔️
+   - Implement cryptocurrency wallet functionalities ✔️
+   - Integrate transaction processing system ✔️
+   - Conduct security review of wallet management features ✔️
