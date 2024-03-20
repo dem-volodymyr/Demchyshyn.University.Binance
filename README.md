@@ -7,6 +7,7 @@ A cryptocurrency exchange platform for trading various digital assets.
 Demchyshyn Volodymyr
 - Email: valdemarmalyna@gmail.com
 - Telegram: https://t.me/dem_volodya
+- Project on Azure: https://binancexchange.azurewebsites.net
 
 ## Getting Started:
 To run the project, follow next steps:
