@@ -1,0 +1,31 @@
+<form method="post">
+    {% csrf_token %}
+    <label for="sender_wallet_id">Sender Wallet:</label>
+    <select name="sender_wallet_id" id="sender_wallet_id">
+        {% for wallet in wallets %}
+            <option value="{{ wallet.id }}">{{ wallet.id }} - {{ wallet.address }} (BTC: {{ wallet.btc }}, ETH: {{ wallet.eth }}, USDT: {{ wallet.usdt }}, BNB: {{ wallet.bnb }}, SOL: {{ wallet.sol }}, XRP: {{ wallet.xrp }}, AVAX: {{ wallet.avax }}, ADA: {{ wallet.ada }}, MATIC: {{ wallet.matic }}, DOT: {{ wallet.dot }})</option>
+        {% endfor %}
+    </select><br>
+    <label for="receiver_wallet_id">Receiver Wallet:</label>
+    <select name="receiver_wallet_id" id="receiver_wallet_id">
+        {% for wallet in wallets %}
+            <option value="{{ wallet.id }}">{{ wallet.id }} - {{ wallet.address }} (BTC: {{ wallet.btc }}, ETH: {{ wallet.eth }}, USDT: {{ wallet.usdt }}, BNB: {{ wallet.bnb }}, SOL: {{ wallet.sol }}, XRP: {{ wallet.xrp }}, AVAX: {{ wallet.avax }}, ADA: {{ wallet.ada }}, MATIC: {{ wallet.matic }}, DOT: {{ wallet.dot }})</option>
+        {% endfor %}
+    </select><br>
+    <label for="amount">Amount:</label>
+    <input type="text" name="amount" id="amount"><br>
+    <label for="currency">Currency:</label>
+    <select name="currency" id="currency">
+        <option value="BTC">BTC</option>
+        <option value="ETH">ETH</option>
+        <option value="USDT">USDT</option>
+        <option value="BNB">BNB</option>
+        <option value="SOL">SOL</option>
+        <option value="XRP">XRP</option>
+        <option value="AVAX">AVAX</option>
+        <option value="ADA">ADA</option>
+        <option value="MATIC">MATIC</option>
+        <option value="DOT">DOT</option>
+    </select><br>
+    <input type="submit" value="Transfer">
+</form>

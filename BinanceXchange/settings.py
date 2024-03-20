@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['binancexchange.azurewebsites.net', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'wallet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

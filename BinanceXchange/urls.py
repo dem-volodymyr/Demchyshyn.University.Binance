@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from binance_register import views
 from exchange_table.views import exchange_view
+from wallet.views import wallet
+from wallet.views import success
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,5 +28,8 @@ urlpatterns = [
     path('accounts/google/login/callback/', views.callback_view, name='google_callback'),
     path('', views.home, name='home'),  # Home page
     path('tables/', exchange_view, name='table'),
+    path('wallet/', wallet, name='wallet'),
+    path('success/<int:transaction_id>/', success, name='success'),
+    #path('success/', success, name='success'),
 ]
 

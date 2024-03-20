@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Success</title>
+</head>
+<body>
+    <h1>Transaction Details</h1>
+    <p>Transaction ID: {{ transaction.id }}</p>
+    <p>Amount: {{ transaction.amount }}</p>
+    <p>Currency: {{ transaction.currency }}</p>
+    <p>Sender Wallet: {{ transaction.sender_wallet.address }}</p>
+    <p>Receiver Wallet: {{ transaction.receiver_wallet.address }}</p>
+</body>
+</html>

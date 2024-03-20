@@ -13,6 +13,7 @@ main page
         <th scope='col'>Rank</th>
         <th scope='col'>Market cap</th>
         <th scope='col'>Price</th>
+          <a href="/wallet"><button>Wallet</button></a>
       </tr>
     </thead>
     <tbody>
@@ -22,8 +23,8 @@ main page
             <td><img src={{obj.image}} height='70'></td>
             <td class="align-middle">{{obj.name}}</td>
             <td class="align-middle">{{obj.market_cap_rank}}</td>
-            <td class="align-middle">{{obj.market_cap}}</td>
-            <td class="align-middle">{{obj.current_price}}</td>
+            <td class="align-middle">{{obj.market_cap}}$</td>
+            <td class="align-middle">{{obj.current_price}}$</td>
           </tr>
         {% endfor %}
         {% else %}
