@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from binance_register import views
 from exchange_table.views import exchange_view
+from tracker.views import crypto_list
 from wallet.views import wallet
 from wallet.views import success
+from CryptoMarketAnalysis.views import crypto_market_analysis
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,5 +33,7 @@ urlpatterns = [
     path('wallet/', wallet, name='wallet'),
     path('success/<int:transaction_id>/', success, name='success'),
     #path('success/', success, name='success'),
+    path('analysis/', crypto_market_analysis, name='analysis'),
+    path('tracker/', crypto_list, name='crypto_list'),
 ]
 
