@@ -1,9 +1,16 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
+from django.contrib.auth.models import User
 
-class TestRegisterView(TestCase):
-    def test_register_view(self):
-        url = reverse('register')  # Assuming 'register' is the name of your URL pattern
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)  # Assuming 200 is the expected status code
-        self.assertTemplateUsed(response, 'register.html')
+
+class test_logout_view(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_logout_view(self):
+        user = User.objects.create_user(username='testuser', password='testpassword')
+        self.client.force_login(user)
+        # Make a GET request to the logout view
+        response = self.client.get(reverse('logout_view'))
+        # Check if the response status code is 302 (redirect)
+        self.assertEqual(response.status_code, 302)

@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from django.contrib import staticfiles
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,14 +28,11 @@ SECRET_KEY = 'django-insecure-yz@arq$5207orb+c0+5jto_#9-l==yw^#vhjw$0vz2_!!=@fer
 DEBUG = True
 
 ALLOWED_HOSTS = ['binancexchange.azurewebsites.net', '127.0.0.1']
-
+CSRF_TRUSTED_ORIGINS = ['https://binancexchange.azurewebsites.net']
 
 # Application definition
 
 INSTALLED_APPS = [
-    'tracker',
-    'wallet',
-    'CryptoMarketAnalysis',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +44,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'tracker',
+    'wallet',
+    'binance_register',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +140,7 @@ SITE_ID = 2
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
     ]
 
@@ -155,3 +158,12 @@ SOCIALACCOUNT_PROVIDERS = {
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+passwrd: str = os.getenv('vqur snto nqrm pavw')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'xchangeua@gmail.com'
+EMAIL_HOST_PASSWORD = 'vqur snto nqrm pavw'
+EMAIL_USE_TLS = True

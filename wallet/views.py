@@ -6,14 +6,16 @@ import requests
 from .models import Wallet, Transaction
 import re
 
+
 def wallet(request):
     if request.method == 'POST':
-        sender_wallet_id = request.POST.get('sender_wallet_id')
+        user = request.user
+        sender_wallet_id = user.username
         receiver_wallet_id = request.POST.get('receiver_wallet_id')
         amount = float(request.POST.get('amount'))
         currency = request.POST.get('currency')
 
-        sender_wallet = Wallet.objects.get(id=sender_wallet_id)
+        sender_wallet = Wallet.objects.get(address=sender_wallet_id)
         receiver_wallet = Wallet.objects.get(id=receiver_wallet_id)
 
         # Перевірка наявності коштів на гаманці

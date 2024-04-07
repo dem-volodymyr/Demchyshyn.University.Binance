@@ -1,24 +1,24 @@
-from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.contrib.auth import logout
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from wallet.models import Wallet
-import requests
-
-# Create your views here.
 
 
-# Create your views here.
-def home(request):
-    return render(request, "home.html")
+@login_required
+def welcome_email(request):
+    user = request.user
+    wallet = Wallet.objects.create(address=user.username, btc=1, eth=1, usdt=200, bnb=1000, sol=100, xrp=20, avax=15,
+                                   ada=10, matic=10, dot=10)
+    subject = 'Welcome to Xchange!'
+    message = f'{user.username}, thanks for becoming a part of our community!'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+    send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+    return redirect('home')
 
 
-def register(request):
-    wallet = Wallet.objects.create(address='', btc=0.0001, eth=0.000001, usdt=100, bnb=1000, sol=100, xrp=20, avax=15, ada=10,
-                                    matic=10, dot=10)
-    return render(request, "register.html")
-
-
-def callback_view(request):
-    return redirect(reverse('table'))
-
+def logout_view(request):
+    logout(request)
+    return redirect("home")
