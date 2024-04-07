@@ -6,6 +6,7 @@ urlpatterns = [
     path('accounts/', include("allauth.urls")),
     path('', include('binance_register.urls')),
     path('', include('tracker.urls')),
+    path('', include('Order.urls')),
     path('wallet/', wallet, name='wallet'),
     path('success/<int:transaction_id>/', success, name='success'),
 

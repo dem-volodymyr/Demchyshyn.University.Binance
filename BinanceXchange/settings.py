@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'tracker',
     'wallet',
     'binance_register',
+    'Order',
 ]
 
 MIDDLEWARE = [
