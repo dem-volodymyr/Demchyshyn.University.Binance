@@ -36,6 +36,9 @@ Very simple interface and very easy to use crypto exchange.
 The cryptocurrency exchange app follows a client-server architecture. The client-side is built using HTML, CSS, JS and
 Jinja, while the server-side is implemented with Django.
 
+### Database schema 
+![Database.jpg](Database.jpg "Database") 
+
 ### Usage
 
 Trading and exchange of both crypto and fiat currencies
