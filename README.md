@@ -72,21 +72,21 @@ Week 4:
 - Implement feature: Market Analysis Tools✔️
 - Integrate advanced charting libraries✔️
 - Implement technical analysis indicators✔️
-- Develop market analysis features such as price alerts and trend analysis✔️!
-- Conduct usability testing for market analysis tools ✔️!
+- Develop market analysis features such as price alerts and trend analysis
+- Conduct usability testing for market analysis tools(UI/UX)✔️!
 
 Week 5:
 
-- Implement feature: Order Management
-- Develop order placement and tracking system
-- Implement order book functionality
-- Integrate order execution mechanisms
-- Conduct end-to-end testing of order management system
+- Implement feature: Order Management✔️
+- Develop order placement and tracking system✔️
+- Implement order book functionality✔️
+- Integrate order execution mechanisms✔️
+- Conduct end-to-end testing of order management system✔️
 
 Week 6:
 
-- Implement feature: Notification System
-- Develop notification infrastructure
-- Implement email and in-platform notifications
-- Integrate notification triggers with user actions
-- Conduct load testing for notification delivery system
+- Implement feature: Notification System✔️
+- Develop notification infrastructure✔️
+- Implement email and in-platform notifications✔️
+- Integrate notification triggers with user actions✔️
+- Conduct load testing for notification delivery system✔️

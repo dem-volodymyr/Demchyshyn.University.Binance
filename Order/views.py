@@ -2,6 +2,19 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Order
 from wallet.models import Wallet
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+import requests
+
+
+@login_required
+def order_alert(request, user, quantity, product, price, total):
+    subject = 'You have just placed an order!'
+    message = f'{user.username}, you place order for {quantity}{product} at price {price}USDT/{product}. Your {total}USDT frozen.  !'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+    send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
 
 @login_required
@@ -22,5 +35,7 @@ def create_order(request):
         wallet = Wallet.objects.get(address=wallet_address)
         order = Order(user=request.user, product=product, quantity=quantity, price=price, total=total, wallet=wallet)
         order.save()
+        order_alert(request, user, quantity, product, price, total)
         return redirect('order_history')
+
     return render(request, 'create_order.html')
