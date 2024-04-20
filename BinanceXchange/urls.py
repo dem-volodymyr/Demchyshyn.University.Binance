@@ -9,7 +9,6 @@ urlpatterns = [
     path('', include('Order.urls')),
     path('wallet/', wallet, name='wallet'),
     path('success/<int:transaction_id>/', success, name='success'),
-    path('edit_profile/', include("edit_profile.urls")),
 
 
 

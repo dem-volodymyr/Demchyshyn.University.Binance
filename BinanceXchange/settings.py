@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'wallet',
     'binance_register',
     'Order',
-    'edit_profile',
 ]
 
 MIDDLEWARE = [
@@ -149,7 +148,7 @@ AUTHENTICATION_BACKENDS = [
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
-            'profile.html',
+            'profile',
             'email',
         ],
         'AUTH_PARAMS': {
