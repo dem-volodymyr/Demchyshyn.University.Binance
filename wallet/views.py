@@ -1,12 +1,24 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 import requests
 from .models import Wallet, Transaction
 import re
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
+def sent_alert(request, user, receiver_wallet, amount, currency):
+    subject = 'Wallet transaction successful!'
+    message = f'{user.username}, you sent to {receiver_wallet}, {amount}{currency}!'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+    send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
+
+@login_required
 def wallet(request):
     if request.method == 'POST':
         user = request.user
@@ -21,6 +33,7 @@ def wallet(request):
         # Перевірка наявності коштів на гаманці
         if sender_wallet.__dict__[currency.lower()] >= amount:
             # Створення транзакції
+            sent_alert(request, user, receiver_wallet.address, amount, currency)
             transaction = Transaction(sender_wallet=sender_wallet, receiver_wallet=receiver_wallet, amount=amount,
                                       currency=currency)
             transaction.save()
@@ -36,6 +49,7 @@ def callback_view(request):
     return redirect(reverse('wallet'))
 
 
+@login_required
 def success(request, transaction_id):
     try:
         transaction = Transaction.objects.get(id=transaction_id)

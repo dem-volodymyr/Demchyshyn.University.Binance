@@ -1,77 +1,95 @@
 # BinanceXchange
 
 ## About
+
 A cryptocurrency exchange platform for trading various digital assets.
 
 ## Author
+
 Demchyshyn Volodymyr
+
 - Email: valdemarmalyna@gmail.com
 - Telegram: https://t.me/dem_volodya
 - Project on Azure: https://binancexchange.azurewebsites.net
 
 ## Getting Started:
+
 To run the project, follow next steps:
 
-1. Clone the repository: git clone 
+1. Clone the repository: git clone
 2. Install dependencies: pip install -r requirements.txt
 3. Run the development server: python manage.py runserver
 
-
 ## Documentation
+
 ### Introduction
+
 Very simple interface and very easy to use crypto exchange.
 
 ### Features
+
 - User Authentication with Google account.
 - Coming soon.
 
 ### Architecture
-The cryptocurrency exchange app follows a client-server architecture. The client-side is built using HTML, CSS, JS and Jinja, while the server-side is implemented with Django.
+
+The cryptocurrency exchange app follows a client-server architecture. The client-side is built using HTML, CSS, JS and
+Jinja, while the server-side is implemented with Django.
+
+### Database schema 
+![Database.jpg](Database.jpg "Database") 
 
 ### Usage
+
 Trading and exchange of both crypto and fiat currencies
 
 ## Project Task Decomposition
+
 Week 1 :️
-   - Implement feature: User Registration with Google Account✔️
-   - Setup Azure environment✔️
-   - Create initial project structure✔️
-   - Define database schema✔️!
-   - Write unit tests for user registration functionality✔️
+
+- Implement feature: User Registration with Google Account✔️
+- Setup Azure environment✔️
+- Create initial project structure✔️
+- Define database schema✔️!
+- Write unit tests for user registration functionality✔️
 
 ️
 Week 2:
-   - Implement feature: Trading Dashboard✔️
-   - Develop user interface for dashboard components✔️!
-   - Integrate real-time market data APIs✔️
-   - Implement basic trading functionalities✔️
-   - Conduct initial performance testing✔️!
+
+- Implement feature: Trading Dashboard✔️
+- Develop user interface for dashboard components✔️!
+- Integrate real-time market data APIs✔️
+- Implement basic trading functionalities✔️
+- Conduct initial performance testing✔️!
 
 Week 3:
+
 - Implement feature: Wallet Management ✔️
 - Design wallet interface for managing balances and transactions ✔️
 - Implement cryptocurrency wallet functionalities ✔️
 - Integrate transaction processing system ✔️
 - Conduct security review of wallet management features ✔️
 
-
 Week 4:
+
 - Implement feature: Market Analysis Tools✔️
 - Integrate advanced charting libraries✔️
 - Implement technical analysis indicators✔️
-- Develop market analysis features such as price alerts and trend analysis✔️!
-- Conduct usability testing for market analysis tools ✔️!
+- Develop market analysis features such as price alerts and trend analysis
+- Conduct usability testing for market analysis tools(UI/UX)✔️!
 
 Week 5:
-   - Implement feature: Order Management
-   - Develop order placement and tracking system
-   - Implement order book functionality
-   - Integrate order execution mechanisms
-   - Conduct end-to-end testing of order management system
+
+- Implement feature: Order Management✔️
+- Develop order placement and tracking system✔️
+- Implement order book functionality✔️
+- Integrate order execution mechanisms✔️
+- Conduct end-to-end testing of order management system✔️
 
 Week 6:
-   - Implement feature: Notification System
-   - Develop notification infrastructure
-   - Implement email and in-platform notifications
-   - Integrate notification triggers with user actions
-   - Conduct load testing for notification delivery system
+
+- Implement feature: Notification System✔️
+- Develop notification infrastructure✔️
+- Implement email and in-platform notifications✔️
+- Integrate notification triggers with user actions✔️
+- Conduct load testing for notification delivery system✔️

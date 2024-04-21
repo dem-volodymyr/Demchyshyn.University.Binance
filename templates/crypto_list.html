@@ -189,11 +189,12 @@
                 <div class="header-right">
                     {% if user.is_authenticated %}
                         <a href="/wallet">Wallet</a>
+                        <a href="order_history/">History</a>
+                        <a href="create_order/">Orders</a>
                         <a href="{% url 'logout_view' %}">Logout</a>
                     {% else %}
                         <a href="{% provider_login_url 'google'%}?next=/">Login/Register with Google</a>
                     {% endif %}
-                    <a href="/none">none</a>
                 </div>
             </div>
         </header>

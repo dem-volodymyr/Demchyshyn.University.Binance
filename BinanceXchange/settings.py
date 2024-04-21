@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'tracker',
     'wallet',
     'binance_register',
+    'Order',
 ]
 
 MIDDLEWARE = [
@@ -163,5 +164,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'xchangeua@gmail.com'
-EMAIL_HOST_PASSWORD = 'vqur snto nqrm pavw'
+EMAIL_HOST_PASSWORD = 'bcqv mmid toxp dxiq'
 EMAIL_USE_TLS = True
