@@ -28,11 +28,10 @@ def wallet(request):
         currency = request.POST.get('currency')
 
         sender_wallet = Wallet.objects.get(address=sender_wallet_id)
-        receiver_wallet = Wallet.objects.get(id=receiver_wallet_id)
+        receiver_wallet = Wallet.objects.get(address=receiver_wallet_id)
 
         # Перевірка наявності коштів на гаманці
         if sender_wallet.__dict__[currency.lower()] >= amount:
-            # Створення транзакції
             sent_alert(request, user, receiver_wallet.address, amount, currency)
             transaction = Transaction(sender_wallet=sender_wallet, receiver_wallet=receiver_wallet, amount=amount,
                                       currency=currency)
@@ -40,13 +39,29 @@ def wallet(request):
             return redirect('success', transaction_id=transaction.id)
         else:
             return render(request, 'error.html', {'message': 'Insufficient balance.'})
-
-    wallets = Wallet.objects.all()
+    user = request.user
+    sender_wallet_id = user.username
+    wallets = Wallet.objects.get(address=sender_wallet_id)
     return render(request, 'wallet.html', {'wallets': wallets})
 
 
 def callback_view(request):
     return redirect(reverse('wallet'))
+
+
+@login_required
+def wallet_history(request):
+    user = request.user
+    sender_wallet = user.id
+    transactions = Transaction.objects.filter(sender_wallet=sender_wallet)
+    return render(request, 'wallet_history.html', {'transactions': transactions})
+
+
+def view_wallet(request):
+    user = request.user
+    sender_wallet_id = user.username
+    wallets = Wallet.objects.get(address=sender_wallet_id)
+    return render(request, 'wallet.html', {'wallets': wallets})
 
 
 @login_required

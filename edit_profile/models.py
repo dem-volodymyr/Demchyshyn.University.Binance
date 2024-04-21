@@ -4,17 +4,16 @@ from django.utils.translation import gettext as _
 from django.templatetags.static import static
 
 
-
 class Profile(models.Model):
     GENDER_MALE = 1
     GENDER_FEMALE = 2
     GENDER_CHOICES = [
-        (GENDER_MALE, _("Male")),
-        (GENDER_FEMALE, _("Female")),
+        (GENDER_MALE, _("BTC")),
+        (GENDER_FEMALE, _("ETH")),
     ]
 
     user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to="customers/profiles/avatars/", null=True, blank=True)
+    avatar = models.ImageField(upload_to="profiles/avatars/", null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
     gender = models.PositiveSmallIntegerField(choices=GENDER_CHOICES, null=True, blank=True)
     phone = models.CharField(max_length=32, null=True, blank=True)

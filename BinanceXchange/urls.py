@@ -1,13 +1,14 @@
 from django.contrib import admin
 from django.urls import path, include
-from wallet.views import wallet, success
+from wallet.views import success
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('accounts/', include("allauth.urls")),
     path('', include('binance_register.urls')),
     path('', include('tracker.urls')),
     path('', include('Order.urls')),
-    path('wallet/', wallet, name='wallet'),
+    path('', include('wallet.urls')),
     path('success/<int:transaction_id>/', success, name='success'),
     path('', include("edit_profile.urls")),
 

@@ -39,3 +39,4 @@ def create_order(request):
         return redirect('order_history')
 
     return render(request, 'create_order.html')
+
