@@ -18,7 +18,7 @@ class ProfileView(View):
 
     def get(self, request):
         context = {'profile': self.profile, 'segment': 'profile'}
-        return render(request, 'customers/profile.html', context)
+        return render(request, 'profile.html', context)
 
     def post(self, request):
         form = ProfileForm(request.POST, request.FILES, instance=self.profile)
