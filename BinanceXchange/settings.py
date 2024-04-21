@@ -16,6 +16,7 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'wallet',
     'binance_register',
     'Order',
+    'edit_profile',
 ]
 
 MIDDLEWARE = [
@@ -156,7 +158,10 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
-
+STATIC_URL = '/static/'
+STATIC_ROOT = 'BinanceXchange'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
