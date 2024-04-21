@@ -158,10 +158,12 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
-STATIC_URL = '/static/'
-STATIC_ROOT = 'BinanceXchange'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles_config")
+STATIC_HOST = os.environ.get("DJANGO_STATIC_HOST", "")
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static", ]
+
+
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
