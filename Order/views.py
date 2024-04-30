@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from .models import Order
 from wallet.models import Wallet
 from django.core.mail import send_mail

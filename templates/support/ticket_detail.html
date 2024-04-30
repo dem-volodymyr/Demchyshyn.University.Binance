@@ -190,7 +190,7 @@
                 <a class="h1">Tickets </a>
                 <div class="header-right">
                     {% if user.is_authenticated %}
-                        <a href="/wallet">Back</a>
+                        <a href="/support">Back</a>
                         <a href="{% url 'logout_view' %}">Logout</a>
                     {% else %}
                         <a href="{% provider_login_url 'google'%}?next=/">Login/Register with Google</a>
@@ -198,27 +198,22 @@
                 </div>
             </div>
         </header>
-    <h1>Transaction History</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Transaction ID</th>
-                <th>Amount</th>
-                <th>Currency</th>
-                <th>Receiver Wallet</th>
-                <th>sender_wallet</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transaction in transactions %}
-                <tr>
-                    <td>Transaction ID: {{ transaction.id }}</td>
-                    <td>Amount: {{ transaction.amount }}</td>
-                    <td>Currency: {{ transaction.currency }}</td>
-                    <td>Receiver Wallet: {{ transaction.receiver_wallet.address }}</td>
-                    <td>Sender_wallet: {{transaction.sender_wallet.address }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <h1>{{ ticket.title }}</h1>
+  <p>{{ ticket.description }}</p>
+  <h2>Comments</h2>
+  <ul>
+    {% for comment in ticket.comments.all %}
+      <li>
+        <strong>{{ comment.user.username }}:</strong> {{ comment.text }}
+      </li>
+    {% empty %}
+      <li>No comments yet.</li>
+    {% endfor %}
+  </ul>
+  <h2>Add a comment</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">Add comment</button>
+  </form>
 {% endblock %}

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'binance_register',
     'Order',
     'edit_profile',
+    'support',
 ]
 
 MIDDLEWARE = [
