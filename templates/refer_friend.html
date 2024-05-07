@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Refer a Friend</title>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <label>
+            <input type="text" name="referral_code" placeholder="Enter Referral Code">
+        </label>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

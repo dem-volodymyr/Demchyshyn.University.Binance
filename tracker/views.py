@@ -25,6 +25,18 @@ def logout_view(request):
 
 def crypto_list(request):
     # api_url = 'https://api.coingecko.com/api/v3/coins/markets'
+    import requests
+
+    url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=100&page=1&sparkline=false"
+
+    headers = {
+        "accept": "application/json",
+        "x-cg-demo-api-key": "CG-L2LFhe4vEhqN8aLH2seaVAh1"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    """
     api_url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=100&page=1&sparkline=false'
     params = {
         'vs_currency': 'usd',
@@ -34,6 +46,7 @@ def crypto_list(request):
         'sparkline': False,
     }
     response = requests.get(api_url, params=params)
+    """
     print("API_Data", response.json())
 
     if response.status_code == 200:

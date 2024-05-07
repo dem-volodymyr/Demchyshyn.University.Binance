@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'Order',
     'edit_profile',
     'support',
+    'referral',
 ]
 
 MIDDLEWARE = [

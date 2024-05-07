@@ -35,7 +35,7 @@ def wallet(request):
             sent_alert(request, user, receiver_wallet.address, amount, currency)
             transaction = Transaction(sender_wallet=sender_wallet, receiver_wallet=receiver_wallet, amount=amount,
                                       currency=currency)
-            transaction.save()
+            transaction.save_it()
             return redirect('success', transaction_id=transaction.id)
         else:
             return render(request, 'error.html', {'message': 'Insufficient balance.'})

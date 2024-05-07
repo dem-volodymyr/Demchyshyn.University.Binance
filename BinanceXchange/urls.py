@@ -12,6 +12,7 @@ urlpatterns = [
     path('success/<int:transaction_id>/', success, name='success'),
     path('', include("edit_profile.urls")),
     path('', include("support.urls")),
+    path('', include("referral.urls")),
 
 
 

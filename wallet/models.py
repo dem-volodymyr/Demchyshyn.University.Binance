@@ -23,7 +23,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=18, decimal_places=8)
     currency = models.CharField(max_length=10)
 
-    def save(self, *args, **kwargs):
+    def save_it(self, *args, **kwargs):
         sender_wallet = self.sender_wallet
         receiver_wallet = self.receiver_wallet
         if self.currency == 'BTC':

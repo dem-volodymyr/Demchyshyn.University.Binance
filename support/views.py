@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .forms import CommentForm
 from django.contrib.auth.models import User
 
+
 def ticket_detail(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.method == 'POST':
