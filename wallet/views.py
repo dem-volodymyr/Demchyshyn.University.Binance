@@ -53,11 +53,14 @@ def callback_view(request):
 def wallet_history(request):
     user = request.user
     sender_wallet = user.id
-    transactions = Transaction.objects.filter(sender_wallet=sender_wallet)
+    print(sender_wallet)
+    transactions = Transaction.objects.filter(receiver_wallet_id=sender_wallet)
     return render(request, 'wallet_history.html', {'transactions': transactions})
 
 
 def view_wallet(request):
+    user = request.user
+    sender_wallet_id = user.username
     user = request.user
     sender_wallet_id = user.username
     wallets = Wallet.objects.get(address=sender_wallet_id)

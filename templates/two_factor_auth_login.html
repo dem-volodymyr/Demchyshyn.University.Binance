@@ -176,8 +176,8 @@
                     <a href="/" class="logo">Xchange</a>
                     <div class="header-right">
                         {% if user.is_authenticated %}
-                            <a href="/wallet">Wallet</a>
-                            <a href="/referral-program">My code</a>
+                            <a href=" /two_factor_auth_setup">I don't have 2FA</a>
+                            <a href="/sent_new_code">I forgot my 2FA</a>
                             <a href="/">Back</a>
                             <a href="{% url 'logout_view' %}">Logout</a>
                         {% else %}
@@ -186,13 +186,11 @@
                     </div>
                 </div>
             </header>
-            <body>
-                <form method="post">
-                    {% csrf_token %}
-                    <label>
-                        <input type="text" name="referral_code" placeholder="Enter Referral Code">
-                    </label>
-                    <button type="submit">Submit</button>
-                </form>
-            </body>
-</html>
+        <form method="post">
+        {% csrf_token %}
+        <input type="number" name="token" placeholder="Enter token">
+        <button type="submit">Login</button>
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+        </form>

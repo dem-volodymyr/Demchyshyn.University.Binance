@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'edit_profile',
     'support',
     'referral',
+    'twofactor',
+    'qr_code',
 ]
 
 MIDDLEWARE = [
@@ -164,6 +166,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles_config")
 STATIC_HOST = os.environ.get("DJANGO_STATIC_HOST", "")
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static", ]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
 LOGIN_REDIRECT_URL = '/'

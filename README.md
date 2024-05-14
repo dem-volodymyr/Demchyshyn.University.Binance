@@ -120,19 +120,19 @@ Week 9:
 
 Week 10:
 
-- Implement feature: Referral Program
-- Design referral program structure and rewards system
-- Develop referral tracking mechanisms
-- Implement referral invitation features
-- Conduct testing and validation of referral program functionality
+- Implement feature: Referral Program✔️
+- Design referral program structure and rewards system✔️
+- Develop referral tracking mechanisms✔️
+- Implement referral invitation features✔️
+- Conduct testing and validation of referral program functionality✔️
 
 Week 11:
 
-- Implement feature: Security Features
-- Enhance security with two-factor authentication
-- Implement account recovery mechanisms ?
-- Conduct security testing and vulnerability assessment
-- Develop user education materials on security best practices
+- Implement feature: Security Features✔️
+- Enhance security with two-factor authentication✔️
+- Implement account recovery mechanisms ✔️
+- Conduct security testing and vulnerability assessment✔️
+- Develop user education materials on security best practices(FAQ)✔️
 
 Week 12:
 
