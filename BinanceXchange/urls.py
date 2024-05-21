@@ -19,7 +19,6 @@ urlpatterns = [
     path('', include("twofactor.urls")),
 
 
-
     #path('', crypto_list, name='crypto_list'),
     #path('accounts/', include("allauth.urls")),
     #path('register/', views.register, name='register'),
@@ -28,3 +27,5 @@ urlpatterns = [
     #path('tables/', exchange_view, name='table'),
 ]
 
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

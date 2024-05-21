@@ -162,12 +162,10 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles_config")
-STATIC_HOST = os.environ.get("DJANGO_STATIC_HOST", "")
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static", ]
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [STATIC_DIR]
 
 
 LOGIN_REDIRECT_URL = '/'
