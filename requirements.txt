@@ -39,3 +39,6 @@ sqlparse==0.4.4
 typing_extensions==4.11.0
 urllib3==2.2.1
 zipp==3.18.1
+environ
+django-mysql
+django-mssql-backend

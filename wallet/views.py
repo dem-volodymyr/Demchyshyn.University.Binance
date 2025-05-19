@@ -1,9 +1,6 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.urls import reverse
-import requests
 from .models import Wallet, Transaction
-import re
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required

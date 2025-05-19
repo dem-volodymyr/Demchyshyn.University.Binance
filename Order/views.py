@@ -4,7 +4,6 @@ from wallet.models import Wallet
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-import requests
 
 
 @login_required
@@ -38,4 +37,3 @@ def create_order(request):
         return redirect('order_history')
 
     return render(request, 'create_order.html')
-

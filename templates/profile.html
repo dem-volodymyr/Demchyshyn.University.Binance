@@ -259,9 +259,9 @@
                                 <select name="gender" class="form-select mb-0" id="gender"
                                         aria-label="Gender select example">
                                     <option selected>Favorite Crypto</option>
-                                    {% for key, value in profile.GENDER_CHOICES %}
+                                    {% for key, value in profile.fav_crypto_choice %}
                                         <option value="{{ key }}"
-                                                {% if profile.gender == key %}selected{% endif %}>{{ value }}</option>
+                                                {% if profile.fav_crypto == key %}selected{% endif %}>{{ value }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

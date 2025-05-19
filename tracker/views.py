@@ -4,7 +4,6 @@ from django.contrib.auth import logout
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-import requests
 
 
 @login_required

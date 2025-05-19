@@ -17,14 +17,6 @@ urlpatterns = [
     path('', include("support.urls")),
     path('', include("referral.urls")),
     path('', include("twofactor.urls")),
-
-
-    #path('', crypto_list, name='crypto_list'),
-    #path('accounts/', include("allauth.urls")),
-    #path('register/', views.register, name='register'),
-    #path('binance_register/', include("allauth.urls")),
-    #path('accounts/google/login/callback/', views.callback_view, name='google_callback'),
-    #path('tables/', exchange_view, name='table'),
 ]
 
 if settings.DEBUG:

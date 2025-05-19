@@ -1,6 +1,5 @@
 from django.core import mail
 from django.conf import settings
-from django.shortcuts import redirect
 from tracker.views import welcome_email
 from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse

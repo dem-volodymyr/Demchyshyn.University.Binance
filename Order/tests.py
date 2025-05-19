@@ -1,7 +1,8 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-from myapp.models import Order, Wallet
+from .models import Order, Wallet
+
 
 class OrderViewsTestCase(TestCase):
     def setUp(self):

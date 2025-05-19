@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import UserTwoFactorAuth
@@ -29,7 +28,6 @@ def sent_new_code(request):
         recipient_list = [user.email]
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
         return redirect('/two_factor_auth_login')
-
 
 
 @login_required

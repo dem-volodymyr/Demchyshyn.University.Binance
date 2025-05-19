@@ -1,0 +1,11 @@
+{% for comment in ticket.comments.all %}
+<div class="comment {% if comment.is_ai %}ai-response{% endif %}">
+    {% if comment.is_ai %}
+    <div class="ai-badge">
+        <i class="fas fa-robot"></i> AI Assistant
+    </div>
+    {% endif %}
+    <p>{{ comment.text|linebreaks }}</p>
+    <small>{{ comment.created_at }}</small>
+</div>
+{% endfor %}

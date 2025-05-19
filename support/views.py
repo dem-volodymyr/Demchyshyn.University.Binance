@@ -1,9 +1,23 @@
+from .utils import generate_ai_response  # Add this import
 from django.core.mail import send_mail
-from .models import Ticket
-from .models import FAQ
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Ticket, FAQ
 from .forms import CommentForm
-from django.contrib.auth.models import User
+
+
+@login_required
+def ticket_list(request):
+    """Display all tickets for the logged-in user"""
+    tickets = Ticket.objects.filter(user=request.user)
+    return render(request, 'support/ticket_list.html', {'tickets': tickets})
+
+
+# Keep other view functions below this
+
+def faq_list(request):
+    faqs = FAQ.objects.all()
+    return render(request, 'support/faq_list.html', {'faqs': faqs})
 
 
 def ticket_detail(request, pk):
@@ -13,17 +27,30 @@ def ticket_detail(request, pk):
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.ticket = ticket
-            comment.user = request.user  # Make sure to set the user here
+            comment.user = request.user
             comment.save()
+            generate_ai_response(ticket)  # Trigger AI response
             return redirect('ticket_detail', pk=ticket.pk)
     else:
         comment_form = CommentForm()
     return render(request, 'support/ticket_detail.html', {'ticket': ticket, 'comment_form': comment_form})
 
 
-def faq_list(request):
-    faqs = FAQ.objects.all()
-    return render(request, 'support/faq_list.html', {'faqs': faqs})
+def create_ticket(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        description = request.POST['description']
+        ticket = Ticket.objects.create(
+            title=title,
+            description=description,
+            user=request.user,
+            status='open'
+        )
+        # Trigger AI response immediately
+        from .utils import generate_ai_response
+        generate_ai_response(ticket)
+        return redirect('ticket_detail', pk=ticket.pk)
+    return render(request, 'support/create_ticket.html')
 
 
 def contact(request):
@@ -32,19 +59,12 @@ def contact(request):
         name = user.username
         email = user.email
         message = request.POST['message']
-        send_mail('Support Request from {}'.format(name), message, email, ['xchangeua@gmail.com'])
+        send_mail(
+            f'Support Request from {name}',
+            message,
+            email,
+            ['xchangeua@gmail.com'],
+            fail_silently=False,
+        )
+        return redirect('contact')  # Redirect after POST
     return render(request, 'support/contact.html')
-
-
-def ticket_list(request):
-    tickets = Ticket.objects.filter(user=request.user)
-    return render(request, 'support/ticket_list.html', {'tickets': tickets})
-
-
-def create_ticket(request):
-    if request.method == 'POST':
-        title = request.POST['title']
-        description = request.POST['description']
-        ticket = Ticket.objects.create(title=title, description=description, user=request.user)
-        return redirect('ticket_list')
-    return render(request, 'support/create_ticket.html')

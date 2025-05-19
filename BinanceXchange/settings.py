@@ -13,23 +13,30 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from django.contrib import staticfiles
 import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Initialise environment variables
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yz@arq$5207orb+c0+5jto_#9-l==yw^#vhjw$0vz2_!!=@fer'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DJANGO_DEBUG', default=True)
 
-ALLOWED_HOSTS = ['binancexchange.azurewebsites.net', '127.0.0.1']
-CSRF_TRUSTED_ORIGINS = ['https://binancexchange.azurewebsites.net']
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
+CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGINS')
 
 # Application definition
 
@@ -172,8 +179,11 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'xchangeua@gmail.com'
-EMAIL_HOST_PASSWORD = 'bcqv mmid toxp dxiq'
-EMAIL_USE_TLS = True
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env('EMAIL_PORT', default=587)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+
+LEPTON_API_KEY = env('LEPTON_API_KEY')
+LEPTON_BASE_URL = env('LEPTON_BASE_URL', default='https://openchat-3-5.lepton.run/api/v1/')

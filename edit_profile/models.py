@@ -5,17 +5,17 @@ from django.templatetags.static import static
 
 
 class Profile(models.Model):
-    GENDER_MALE = 1
-    GENDER_FEMALE = 2
-    GENDER_CHOICES = [
-        (GENDER_MALE, _("BTC")),
-        (GENDER_FEMALE, _("ETH")),
+    BTC = 1
+    ETH = 2
+    fav_crypto_choice = [
+        (BTC, _("BTC")),
+        (ETH, _("ETH")),
     ]
 
     user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to="profiles/avatars/", null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
-    gender = models.PositiveSmallIntegerField(choices=GENDER_CHOICES, null=True, blank=True)
+    gender = models.PositiveSmallIntegerField(choices=fav_crypto_choice, null=True, blank=True)
     phone = models.CharField(max_length=32, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     number = models.CharField(max_length=32, null=True, blank=True)

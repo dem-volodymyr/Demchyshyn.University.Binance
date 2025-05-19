@@ -17,19 +17,26 @@ class ProfileView(View):
         return super(ProfileView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        context = {'profile': self.profile, 'segment': 'profile'}
+        # Initialize form with profile instance and user's data
+        initial_data = {
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'email': request.user.email,
+        }
+        form = ProfileForm(instance=self.profile, initial=initial_data)
+        context = {'profile': self.profile, 'segment': 'profile', 'form': form}
         return render(request, 'profile.html', context)
 
     def post(self, request):
         form = ProfileForm(request.POST, request.FILES, instance=self.profile)
-
         if form.is_valid():
             profile = form.save()
-            profile.user.first_name = form.cleaned_data.get('first_name')
-            profile.user.last_name = form.cleaned_data.get('last_name')
-            profile.user.email = form.cleaned_data.get('email')
-            profile.user.save()
-
+            # Update the user's fields
+            user = profile.user
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.email = form.cleaned_data['email']
+            user.save()
             messages.success(request, 'Profile saved successfully')
         else:
             messages.error(request, form_validation_error(form))

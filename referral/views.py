@@ -19,8 +19,6 @@ def referral_program(request):
             referral = Referral.objects.create(user=request.user, referral_code=referral_code)
         else:
             referral = request.user.referral
-
-        referred_by = referral.referred_by
         # TODO: something for input ref_code and test
 
         return render(request, 'referral_program.html', {'referral': referral.referral_code})
@@ -42,10 +40,6 @@ def refer_friend(request):
                 referral_code = generate_referral_code(referred_user)
                 Referral.objects.create(user=referred_user, referral_code=referral_code,
                                         referred_by=referred_by)
-
-            else:
-                referral = referred_user.referral
-
             referral_wallet = Wallet.objects.get(address=referral_wallet_id)
             rr = ReferralReward(referral_wallet=referral_wallet, amount=100)
             rr.add_points()
