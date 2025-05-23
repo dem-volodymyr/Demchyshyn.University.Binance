@@ -1,432 +1,515 @@
-{% load socialaccount %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xchange</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- Bootstrap JS bundle and Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
+{% block title %}Cryptocurrency Market - BinanceXchange{% endblock %}
 
-        .background-container {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            overflow-y: auto;
-        }
+{% block extra_css %}
+<style>
+    .crypto-card {
+        height: 100%;
+        transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+        border: none;
+        background: linear-gradient(145deg, #ffffff, #f5f5f5);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .crypto-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(240, 185, 11, 0.1) 0%, rgba(240, 185, 11, 0) 70%);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+        z-index: 0;
+    }
+    
+    .crypto-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .crypto-icon-img {
+        width: 42px;
+        height: 42px;
+        margin-bottom: 10px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        transition: transform var(--transition-normal);
+    }
+    
+    .crypto-card:hover .crypto-icon-img {
+        transform: scale(1.1);
+    }
+    
+    .price-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .crypto-price {
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .crypto-change {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: transform var(--transition-normal);
+    }
+    
+    .crypto-change.positive {
+        background-color: rgba(14, 203, 129, 0.15);
+        color: var(--accent-color);
+    }
+    
+    .crypto-change.negative {
+        background-color: rgba(246, 70, 93, 0.15);
+        color: var(--danger-color);
+    }
+    
+    .crypto-card:hover .crypto-change {
+        transform: scale(1.05);
+    }
+    
+    .search-container {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(230, 232, 234, 0.8);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .search-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-dark), var(--primary-color));
+        background-size: 200% 100%;
+        animation: gradient-shift 8s ease infinite;
+    }
+    
+    .market-stats {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(230, 232, 234, 0.8);
+    }
+    
+    .stats-item {
+        text-align: center;
+        padding: 15px;
+        transition: transform var(--transition-normal);
+        cursor: pointer;
+    }
+    
+    .stats-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stats-value {
+        font-size: 26px;
+        font-weight: 700;
+        background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 5px;
+    }
+    
+    .stats-label {
+        color: var(--text-light);
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .chart-container {
+        height: 250px;
+        margin-top: 20px;
+        position: relative;
+    }
+    
+    .chart-container::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+        z-index: 1;
+        pointer-events: none;
+    }
+    
+    .modal-crypto-icon {
+        width: 32px;
+        height: 32px;
+        margin-right: 10px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+    
+    .crypto-detail-table {
+        margin-top: 20px;
+    }
+    
+    .crypto-detail-table td {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .crypto-detail-table td:first-child {
+        color: var(--text-light);
+        width: 40%;
+        font-weight: 500;
+    }
+    
+    .crypto-detail-table td:last-child {
+        font-weight: 600;
+    }
+    
+    .btn-view-details {
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .btn-view-details::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.2), transparent);
+        transition: all 0.8s ease;
+        z-index: -1;
+    }
+    
+    .btn-view-details:hover::before {
+        left: 100%;
+    }
+    
+    .crypto-rank {
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 12px;
+        background: linear-gradient(145deg, #f0f0f0, #e6e6e6);
+        color: var(--text-light);
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-normal);
+    }
+    
+    .crypto-card:hover .crypto-rank {
+        background: linear-gradient(145deg, var(--primary-color), var(--primary-dark));
+        color: var(--bg-dark);
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .search-button {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .search-button::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.8s ease;
+    }
+    
+    .search-button:hover::after {
+        left: 100%;
+    }
+    
+    .crypto-modal-price {
+        font-size: 28px;
+        font-weight: 700;
+        background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+{% endblock %}
 
-        h1 {
-            color: #fcfeff;
-            text-align: left;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: #01010147;
-
-            /* background-color: rgba(255, 255, 255, 0.8); */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            margin-top: 20px;
-        }
-
-        .banner{
-            background-color: black;
-        }
-
-        .light-grey-button {
-            background-color: #FAF9F6;
-            color: #495057;
-            border-color: #dee2e6;
-        }
-
-        .crypto-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .light-grey-card{
-            background-color: #FAF9F6;
-        }
-
-        .crypto-item {
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            margin: 10px 0;
-            padding: 15px;
-            background-color: #fff;
-            transition: box-shadow 0.3s ease-in-out;
-        }
-
-        .crypto-item:hover {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .price {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .crypto-details p {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        canvas {
-            max-width: 100%;
-            margin-top: 15px;
-        }
-
-        .small-icon {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-        }
-
-        /* Additional styles for modal header */
-        .modal-header {
-            background-color: #007BFF;
-            color: #fff;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        /* Additional styles for modal body table */
-        .crypto-details table {
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .crypto-details td {
-            padding: 8px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        /* Additional styles for modal footer */
-        .modal-footer {
-            border-top: 1px solid #dee2e6;
-            padding-top: 15px;
-        }
-        .header {
-          font-family: 'Montserrat', sans-serif;
-          overflow: hidden;
-          background-color: #1a2039;
-          padding: 20px 10px;
-        }
-
-        .header a {
-          float: left;
-          color: #f6f6f7;
-          text-align: center;
-          padding: 12px;
-          text-decoration: none;
-          font-size: 18px;
-          line-height: 25px;
-          border-radius: 4px;
-          transition: background-color 0.3s, color 0.3s;
-        }
-
-        .header a:not(:last-child) {
-          border-right: 1px solid #57606f;
-        }
-
-        .header a.logo {
-          font-size: 25px;
-          font-weight: bold;
-        }
-
-        .header a:hover {
-          background-color: #d9d8da;
-          color: black;
-        }
-
-        .header-right {
-          float: right;
-        }
-
-        @media screen and (max-width: 500px) {
-          .header a {
-            float: none;
-            display: block;
-            text-align: left;
-            border-right: none;
-          }
-          .header-right {
-            float: none;
-          }
-        }
-
-        body {
-            margin: 0;
-        }
-
-    </style>
-</head>
-<body>
-    <div class="background-container">
-        <header>
-            <div class="header">
-                <a href="/" class="logo">Xchange</a>
-                <div class="header-right">
-                    {% if user.is_authenticated %}
-                        <a href="/wallet">Wallet</a>
-                        <a href="create_order/">Orders</a>
-                        <a href="profile/">Profile</a>
-                        <a href="support/">Support</a>
-                        <a href="refer_friend/">Referral</a>
-                        <a href="two_factor_auth_login/">2FA</a>
-                        <a href="{% url 'logout_view' %}">Logout</a>
-                    {% else %}
-                        <a href="{% provider_login_url 'google'%}?next=/">Login/Register with Google</a>
-                    {% endif %}
-                </div>
-            </div>
-        </header>
-        <div class="container">
-            <div class="input-group mb-3">
+{% block content %}
+<div class="search-container">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="mb-0">Cryptocurrency Market</h2>
+            <p class="text-muted">Live prices and stats for the top cryptocurrencies</p>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
                 <input type="text" id="cryptoSearch" class="form-control" placeholder="Search cryptocurrencies...">
-                <button class="btn btn-outline-secondary light-grey-button" type="button" id="searchButton">Search</button>
+                <button class="btn btn-primary search-button" type="button" id="searchButton">
+                    <i class="fas fa-search"></i> Search
+                </button>
             </div>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5">
-                {% for crypto in cryptocurrencies %}
-                <div class="col mb-4">
-                    <div class="card crypto-card light-grey-card">
-                        <div class="card-body">
-                            <img src={{crypto.image}} alt="{{ crypto.name }}" class="crypto-icon-img card-img-top">
-                            <h5 class="card-title">
-                                 {{ crypto.name }} ({{ crypto.symbol }})
-                            </h5>
-                            <h6>Ranking ({{ crypto.market_cap_rank }})</h6>
-                            <p class="card-text price">
-                                {% with latest_price=crypto.cryptocurrencyprice_set.latest %}
-                                {% if latest_price %}
-                                ${{ latest_price.price }} USD
-                                {% else %}
-                                No price data available
-                                {% endif %}
-                                {% endwith %}
-                            </p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal{{ crypto.id }}">Show
-                                More</button>
-                        </div>
+        </div>
+    </div>
+</div>
 
-                        <!-- Modal for each cryptocurrency -->
-                        <div class="modal fade" id="myModal{{ crypto.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
-                            aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                <div class="modal-content">
-                                    <!-- Inside the modal-header, add styling for consistency -->
-                                    <div class="modal-header bg-primary text-white">
-                                        <h5 class="modal-title">
-                                            <img src="{{crypto.image}}" alt="{{ crypto.name }}" class="crypto-icon-img small-icon">
-                                            {{ crypto.name }} ({{ crypto.symbol }}) Details
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="market-stats">
+    <div class="row">
+        <div class="col-md-3 stats-item">
+            <div class="stats-value">$2.1T</div>
+            <div class="stats-label">Market Cap</div>
+        </div>
+        <div class="col-md-3 stats-item">
+            <div class="stats-value">$98.7B</div>
+            <div class="stats-label">24h Volume</div>
+        </div>
+        <div class="col-md-3 stats-item">
+            <div class="stats-value">63.1%</div>
+            <div class="stats-label">BTC Dominance</div>
+        </div>
+        <div class="col-md-3 stats-item">
+            <div class="stats-value">100+</div>
+            <div class="stats-label">Cryptocurrencies</div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 crypto-container">
+    {% for crypto in cryptocurrencies %}
+    <div class="col crypto-item">
+        <div class="card crypto-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{{crypto.image}}" alt="{{ crypto.name }}" class="crypto-icon-img me-2">
+                    <div>
+                        <h5 class="card-title mb-0">{{ crypto.name }}</h5>
+                        <span class="text-muted">{{ crypto.symbol }}</span>
+                    </div>
+                    <span class="ms-auto crypto-rank">Rank #{{ crypto.market_cap_rank }}</span>
+                </div>
+                
+                <div class="price-container">
+                    <div class="crypto-price">
+                        {% with latest_price=crypto.cryptocurrencyprice_set.latest %}
+                        {% if latest_price %}
+                        ${{ latest_price.price }} USD
+                        {% else %}
+                        No price data
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <span class="crypto-change positive">
+                        <i class="fas fa-caret-up"></i> 2.4%
+                    </span>
+                </div>
+                
+                <button class="btn btn-outline-primary w-100 btn-view-details" data-bs-toggle="modal" data-bs-target="#myModal{{ crypto.id }}">
+                    <i class="fas fa-chart-line me-2"></i> View Details
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal for cryptocurrency details -->
+        <div class="modal fade" id="myModal{{ crypto.id }}" tabindex="-1" aria-labelledby="cryptoModalLabel{{ crypto.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cryptoModalLabel{{ crypto.id }}">
+                            <img src="{{crypto.image}}" alt="{{ crypto.name }}" class="modal-crypto-icon">
+                            {{ crypto.name }} ({{ crypto.symbol }})
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="price-container">
+                                    <div class="crypto-modal-price">
+                                        {% with latest_price=crypto.cryptocurrencyprice_set.latest %}
+                                        {% if latest_price %}
+                                        ${{ latest_price.price }} USD
+                                        {% else %}
+                                        No price data
+                                        {% endif %}
+                                        {% endwith %}
                                     </div>
-                                    <div class="modal-body crypto-details">
-                                        <!-- Cryptocurrency details -->
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p><strong>Market Cap:</strong> {{ crypto.market_cap }}</p>
-                                                <p><strong>Market Cap Rank:</strong> {{ crypto.market_cap_rank }}</p>
-                                                <p><strong>Total Volume:</strong> {{ crypto.total_volume }}</p>
-                                                <p><strong>Highest Price (24hr):</strong> {{ crypto.high_24h }}</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>Low Price (24hr):</strong> {{ crypto.low_24h }}</p>
-                                                <p><strong>Price Change (24h):</strong> {{ crypto.price_change_24h }}</p>
-                                                <p><strong>Max Supply:</strong> {{ crypto.max_supply }}</p>
-                                                <p><strong>Total Supply:</strong> {{ crypto.total_supply }}</p>
-                                            </div>
-                                        </div>
-                                        <!-- Historical Data Chart-->
-                                        <!-- Inside the modal-body -->
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <!-- New chart for historical prices -->
-                                                <canvas id="historicalPricesChart{{ crypto.name }}" width="400" height="200"></canvas>
-
-                                                <!-- Input fields for user input -->
-                                                <div class="mt-3">
-                                                    <label for="daysInput">Number of Days:</label>
-                                                    <input type="number" id="input_for_days{{ crypto.name }}" class="form-control" placeholder="Enter number of days">
-                                                    <button class="btn btn-primary mt-2" onclick="loadHistoricalPrices('{{ crypto.name }}')">Load Historical
-                                                        Prices</button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <script>
-                                            function loadHistoricalPrices(cryptoName) {
-                                                var daysInput = document.getElementById('input_for_days' + cryptoName).value;
-
-                                                if (!cryptoName) {
-                                                    console.error('Crypto name is not defined.');
-                                                    return;
-                                                }
-
-                                                var url = `https://api.coingecko.com/api/v3/coins/${cryptoName.toLowerCase()}/market_chart?vs_currency=usd&days=${daysInput}`;
-                                                console.log(url);
-
-                                                fetch(url)
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        if (data && data.prices && data.prices.length > 0) {
-                                                            var historicalPricesData = {
-                                                                labels: Array.from({ length: data.prices.length }, (_, i) => i + 1),
-                                                                datasets: [{
-                                                                    label: 'Historical Prices (USD)',
-                                                                    data: data.prices.map(entry => entry[1]),
-                                                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                                                    borderColor: 'rgba(255, 99, 132, 1)',
-                                                                    borderWidth: 1,
-                                                                    fill: false
-                                                                }]
-                                                            };
-
-                                                            var historicalPricesCtx = document.getElementById('historicalPricesChart' + cryptoName).getContext('2d');
-                                                            var historicalPricesChart = new Chart(historicalPricesCtx, {
-                                                                type: 'line',
-                                                                data: historicalPricesData,
-                                                                options: {
-                                                                    scales: {
-                                                                        y: {
-                                                                            beginAtZero: true
-                                                                        }
-                                                                    }
-                                                                }
-                                                            });
-                                                        } else {
-                                                            console.error('No historical prices data available.');
-                                                        }
-                                                    })
-                                                    .catch(error => console.error('Error fetching historical prices:', error));
-                                            }
-                                        </script>
-
-
-
-
-                                        <!-- Chart for Market Cap -->
-                                        <canvas id="marketCapChart{{ crypto.id }}" width="400" height="200"></canvas>
-                                        <script>
-                                            var marketCapData = {
-                                                labels: ['Highest (24 hr)', 'Change (24 hr)', 'Lowest (24 hr)'], // Add appropriate labels
-                                                datasets: [{
-                                                    label: 'Market Cap',
-                                                    data: ['{{ crypto.high_24h }}', '{{ crypto.price_change_24h }}', '{{ crypto.low_24h }}'],
-                                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                                    borderColor: 'rgba(75, 192, 192, 1)',
-                                                    borderWidth: 1
-                                                }]
-                                            };
-                                            var marketCapCtx = document.getElementById('marketCapChart{{ crypto.id }}').getContext('2d');
-                                            var marketCapChart = new Chart(marketCapCtx, {
-                                                type: 'line',
-                                                data: marketCapData,
-                                                options: {
-                                                    scales: {
-                                                        y: {
-                                                            beginAtZero: true
-                                                        }
-                                                    }
-                                                }
-                                            });
-
-                                        </script>
-                                        <!-- Single Bar Chart for Supply Information -->
-                                        <canvas id="supplyChart{{ crypto.id }}" width="400" height="200"></canvas>
-                                        <script>
-                                            var supplyData = {
-                                                labels: ['Circulating Supply', 'Max Supply', 'Total Supply'],
-                                                datasets: [{
-                                                    label: 'Supply Information',
-                                                    data: [
-                                                        '{{ crypto.circulating_supply }}',
-                                                        '{{ crypto.max_supply }}',
-                                                        '{{ crypto.total_supply }}'
-                                                    ],
-                                                    backgroundColor: [
-                                                        'rgba(255, 99, 132, 0.2)', // Circulating Supply
-                                                        'rgba(54, 162, 235, 0.2)', // Max Supply
-                                                        'rgba(75, 192, 192, 0.2)'  // Total Supply
-                                                    ],
-                                                    borderColor: [
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(75, 192, 192, 1)'
-                                                    ],
-                                                    borderWidth: 1
-                                                }]
-                                            };
-
-                                            var supplyCtx = document.getElementById('supplyChart{{ crypto.id }}').getContext('2d');
-                                            var supplyChart = new Chart(supplyCtx, {
-                                                type: 'bar',
-                                                data: supplyData,
-                                                options: {
-                                                    scales: {
-                                                        y: {
-                                                            beginAtZero: true
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        </script>
-
-
-
-                                    </div>
-                                    <div class="modal-footer justify-content-between">
-                                        <div>
-                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
+                                    <span class="crypto-change positive">
+                                        <i class="fas fa-caret-up"></i> 2.4%
+                                    </span>
+                                </div>
+                                <table class="table crypto-detail-table">
+                                    <tbody>
+                                        <tr>
+                                            <td>Market Cap</td>
+                                            <td>${{ crypto.market_cap }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>24h Trading Vol</td>
+                                            <td>${{ crypto.total_volume }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Circulating Supply</td>
+                                            <td>{{ crypto.circulating_supply }} {{ crypto.symbol }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Max Supply</td>
+                                            <td>{% if crypto.max_supply %}{{ crypto.max_supply }} {{ crypto.symbol }}{% else %}Unlimited{% endif %}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <canvas id="priceChart{{ crypto.id }}"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <a href="/create_order/" class="btn btn-primary">Trade {{ crypto.symbol }}</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
-                {% endfor %}
             </div>
-
         </div>
     </div>
-    <script>
-        document.getElementById('searchButton').addEventListener('click', function () {
-            var searchTerm = document.getElementById('cryptoSearch').value.toLowerCase();
-            var cryptoItems = document.querySelectorAll('.crypto-card');
+    {% endfor %}
+</div>
+{% for crypto in cryptocurrencies %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('priceChart{{ crypto.id }}');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for p in crypto.hourly_prices %}'{{ p.hour }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: '{{ crypto.symbol }} Price (USD)',
+                    data: [{% for p in crypto.hourly_prices %}{% if p.price is not None %}{{ p.price }}{% else %}null{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    borderColor: '#F0B90B',
+                    backgroundColor: 'rgba(240, 185, 11, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#F0B90B',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(30, 32, 38, 0.9)',
+                        titleColor: '#F0B90B',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(240, 185, 11, 0.3)',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `$${context.raw} USD`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                elements: {
+                    line: {
+                        tension: 0.4
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endfor %}
+{% endblock %}
 
-            cryptoItems.forEach(function (item) {
-                var cryptoName = item.querySelector('.card-title').textContent.toLowerCase();
-                if (cryptoName.includes(searchTerm)) {
-                    item.style.display = 'block';
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize search functionality
+        const searchInput = document.getElementById('cryptoSearch');
+        const searchButton = document.getElementById('searchButton');
+        const cryptoItems = document.querySelectorAll('.crypto-item');
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            cryptoItems.forEach(item => {
+                const cryptoName = item.querySelector('.card-title').textContent.toLowerCase();
+                const cryptoSymbol = item.querySelector('.text-muted').textContent.toLowerCase();
+                
+                if (cryptoName.includes(searchTerm) || cryptoSymbol.includes(searchTerm)) {
+                    item.style.display = '';
                 } else {
                     item.style.display = 'none';
                 }
             });
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
         });
-    </script>
-
-</body>
-
-</html>
+    });
+</script>
+{% endblock %}

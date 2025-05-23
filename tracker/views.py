@@ -4,6 +4,10 @@ from django.contrib.auth import logout
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from datetime import datetime, timedelta
+from django.db.models import Avg
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 
 @login_required
@@ -23,7 +27,6 @@ def logout_view(request):
 
 
 def crypto_list(request):
-    # api_url = 'https://api.coingecko.com/api/v3/coins/markets'
     import requests
 
     url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=100&page=1&sparkline=false"
@@ -46,10 +49,10 @@ def crypto_list(request):
     }
     response = requests.get(api_url, params=params)
     """
-    print("API_Data", response.json())
+    print("API_Data")
 
     if response.status_code == 200:
-        print("If Case")
+        print("Success")
         cryptos_data = response.json()
         for crypto_data in cryptos_data:
             symbol = crypto_data['symbol'].upper()
@@ -93,6 +96,21 @@ def crypto_list(request):
         error_message = f"Failed to fetch cryptocurrency data. Status code: {response.status_code}"
         return render(request, 'error.html', {'error_message': error_message})
 
-    # Retrieve and pass the cryptocurrencies to the template
+    # Get hourly price data for each crypto for today (last price per hour for 24 hours)
     cryptocurrencies = Cryptocurrency.objects.all()
+    now = timezone.now()
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    for crypto in cryptocurrencies:
+        hourly_prices = []
+        for h in range(24):
+            hour_start = today + timedelta(hours=h)
+            hour_end = hour_start + timedelta(hours=1)
+            price_obj = CryptocurrencyPrice.objects.filter(
+                cryptocurrency=crypto,
+                timestamp__gte=hour_start,
+                timestamp__lt=hour_end
+            ).order_by('-timestamp').first()
+            label = hour_start.strftime('%H:00')  # Наприклад, 09:00
+            hourly_prices.append({'hour': label, 'price': price_obj.price if price_obj else None})
+        crypto.hourly_prices = hourly_prices
     return render(request, 'crypto_list.html', {'cryptocurrencies': cryptocurrencies})

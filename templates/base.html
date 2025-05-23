@@ -1,0 +1,516 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Xchange{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'сss/main.css' %}">
+    <style>
+        :root {
+            --primary-color: #F0B90B;
+            --primary-light: #FFDC7D;
+            --primary-dark: #D4A309;
+            --secondary-color: #1E2026;
+            --secondary-dark: #0B0E11;
+            --accent-color: #0ECB81;
+            --accent-light: #5EEDB3;
+            --danger-color: #F6465D;
+            --danger-light: #FF8A9A;
+            --text-color: #1E2026;
+            --text-light: #707A8A;
+            --text-lighter: #B7BDC6;
+            --bg-dark: #0B0E11;
+            --bg-card: #FFFFFF;
+            --bg-light: #F5F5F5;
+            --border-color: #E6E8EA;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        .binance-header {
+            background: linear-gradient(120deg, var(--bg-dark) 0%, #141921 70%, #181E27 100%);
+            padding: 15px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all var(--transition-normal);
+        }
+        .binance-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.5px;
+            transition: transform var(--transition-normal);
+        }
+        .binance-logo:hover {
+            transform: scale(1.05);
+        }
+        .binance-logo i {
+            margin-right: 8px;
+            font-size: 28px;
+            filter: drop-shadow(0 0 5px rgba(240, 185, 11, 0.5));
+        }
+        .nav-link {
+            color: #fff;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all var(--transition-normal);
+            margin: 0 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: all var(--transition-normal);
+            transform: translateX(-50%);
+            opacity: 0;
+        }
+        .nav-link:hover {
+            background-color: rgba(240, 185, 11, 0.15);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .nav-link:hover::before {
+            width: 80%;
+            opacity: 1;
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--bg-dark);
+            box-shadow: 0 4px 12px rgba(240, 185, 11, 0.4);
+            font-weight: 600;
+        }
+        .nav-link.active::before {
+            display: none;
+        }
+        .nav-link i {
+            margin-right: 6px;
+            font-size: 16px;
+            transition: transform var(--transition-fast);
+        }
+        .nav-link:hover i {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-color: var(--primary-color);
+            color: var(--bg-dark);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.8s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            border-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(240, 185, 11, 0.4);
+        }
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+        .card {
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            background-color: var(--bg-card);
+            overflow: hidden;
+            transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+        }
+        .card:hover {
+            transform: translateY(-7px);
+            box-shadow: var(--shadow-lg);
+        }
+        .card-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 18px 20px;
+            font-weight: 600;
+        }
+        .card-title {
+            font-weight: 700;
+            margin-bottom: 0;
+            color: var(--secondary-color);
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .positive-change {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        .negative-change {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+        .footer {
+            background: linear-gradient(120deg, var(--bg-dark) 0%, #141921 70%, #181E27 100%);
+            color: #fff;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark), var(--primary-color));
+            background-size: 200% 100%;
+            animation: gradient-shift 8s ease infinite;
+        }
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links li {
+            margin-bottom: 12px;
+            transition: transform var(--transition-normal);
+        }
+        .footer-links li:hover {
+            transform: translateX(5px);
+        }
+        .footer-links a {
+            color: var(--text-lighter);
+            text-decoration: none;
+            transition: color var(--transition-normal);
+            font-size: 14px;
+            display: block;
+        }
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+        .social-links a {
+            color: #fff;
+            margin-right: 18px;
+            font-size: 20px;
+            transition: all var(--transition-normal);
+            display: inline-block;
+        }
+        .social-links a:hover {
+            color: var(--primary-color);
+            transform: translateY(-3px) scale(1.2);
+        }
+        .page-container {
+            min-height: calc(100vh - 220px);
+            padding: 30px 0;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            transition: all var(--transition-normal);
+            font-size: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(240, 185, 11, 0.25);
+            transform: translateY(-2px);
+        }
+        .form-select {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
+        }
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(240, 185, 11, 0.25);
+            transform: translateY(-2px);
+        }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .table thead th {
+            background-color: var(--bg-light);
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            padding: 15px;
+        }
+        .table tbody tr {
+            transition: background-color var(--transition-fast);
+        }
+        .table tbody tr:hover {
+            background-color: rgba(240, 185, 11, 0.05);
+        }
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+            transition: transform var(--transition-fast);
+        }
+        .table tbody tr:hover td {
+            transform: translateX(3px);
+        }
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-sm);
+        }
+        .badge-success {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            color: #fff;
+        }
+        .badge-danger {
+            background: linear-gradient(135deg, var(--danger-color), var(--danger-light));
+            color: #fff;
+        }
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .modal-header {
+            background: linear-gradient(120deg, var(--bg-dark) 0%, #141921 70%, #181E27 100%);
+            color: #fff;
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            padding: 20px 25px;
+        }
+        .modal-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .modal-body {
+            padding: 25px;
+        }
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 20px 25px;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-color: var(--primary-color);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(240, 185, 11, 0.3);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            border-color: #6c757d;
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268, #6c757d);
+            border-color: #545b62;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+        }
+        @media (max-width: 768px) {
+            .binance-header {
+                padding: 10px 0;
+            }
+            .page-container {
+                padding: 15px 0;
+            }
+            .card-body {
+                padding: 20px;
+            }
+        }
+        /* Fix for select text overflow and stubborn animation issues */
+        select.form-select {
+            padding-right: 4rem !important;
+            width: 100%;
+            transition: none !important;
+            overflow: visible !important;
+            background: transparent !important;
+            direction: ltr;
+            white-space: nowrap;
+        }
+        select.form-select option {
+            white-space: nowrap;
+        }
+        /* Support navigation menu styles */
+        .support-nav .nav-link {
+            color: #23272f;
+            background: #fff;
+            border: 2px solid #ececec;
+            border-radius: 16px;
+            margin: 0 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            min-width: 180px;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px 0 rgba(34, 34, 34, 0.03);
+            transition: all 0.18s cubic-bezier(.4,0,.2,1);
+        }
+        .support-nav .nav-link.active, .support-nav .nav-link:focus, .support-nav .nav-link:hover {
+            background: linear-gradient(90deg, #f8d90f 0%, #f5b942 100%);
+            color: #23272f;
+            border: 2px solid #f5b942;
+            box-shadow: 0 4px 16px 0 rgba(245, 185, 66, 0.18);
+            font-weight: 600;
+            outline: none;
+        }
+        .support-nav .nav-link i {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        @media (max-width: 600px) {
+            .support-nav .nav-link {
+                min-width: 120px;
+                font-size: 0.95rem;
+                margin: 0 4px;
+                padding: 0.5rem 0.7rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="binance-header">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="container-fluid">
+                    <a class="binance-logo" href="/">
+                        <i class="fas fa-coins"></i> Xchange
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            {% if user.is_authenticated %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/order_history"><i class="fas fa-exchange-alt"></i> Orders</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/profile/"><i class="fas fa-user"></i> Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/support/"><i class="fas fa-headset"></i> Support</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/referral-program/"><i class="fas fa-users"></i> Referral</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'logout_view' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link btn btn-primary" href="{% provider_login_url 'google'%}?next=/"><i class="fab fa-google"></i> Login/Register</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <!-- Main Content -->
+    <div class="page-container">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+            <hr class="mt-4 mb-3" style="background-color: #2A2D35; opacity: 0.5;">
+            <div class="text-center text-muted">
+                <small>&copy; {{ year|default:2025 }} Xchange. All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

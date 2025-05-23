@@ -1,20 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from wallet.models import Wallet
-
+import uuid
 
 class Referral(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    referral_code = models.CharField(max_length=20, unique=True)
-    referred_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='referrals')
+    user = models.OneToOneField(User, related_name='referral', on_delete=models.CASCADE)
+    invited_by = models.ForeignKey(User, related_name='referrals', null=True, blank=True, on_delete=models.SET_NULL)
+    code = models.CharField(max_length=16, unique=True, default=uuid.uuid4)
+    bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-
-class ReferralReward(models.Model):
-    referral_wallet = models.ForeignKey(Wallet, related_name='referral_wallet', on_delete=models.CASCADE)
-    amount = models.IntegerField(default=0)
-
-    def add_points(self, *args, **kwargs):
-        referral_wallet = self.referral_wallet
-        referral_wallet.usdt += self.amount
-        referral_wallet.save()
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.user.username} (invited by {self.invited_by.username if self.invited_by else 'None'})"

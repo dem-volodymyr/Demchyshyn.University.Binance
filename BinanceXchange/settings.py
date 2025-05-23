@@ -59,8 +59,9 @@ INSTALLED_APPS = [
     'edit_profile',
     'support',
     'referral',
-    'twofactor',
     'qr_code',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
 ]
 
 MIDDLEWARE = [
@@ -187,3 +188,5 @@ EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 
 LEPTON_API_KEY = env('LEPTON_API_KEY')
 LEPTON_BASE_URL = env('LEPTON_BASE_URL', default='https://openchat-3-5.lepton.run/api/v1/')
+
+COINGECKO_API_KEY = env('COINGECKO_API_KEY', default=None)

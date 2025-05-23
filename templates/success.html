@@ -1,214 +1,46 @@
-{% load socialaccount %}
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XChange</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- Bootstrap JS bundle and Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        .background-container {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        h1 {
-            color: #fcfeff;
-            text-align: left;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: #01010147;
-
-            /* background-color: rgba(255, 255, 255, 0.8); */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            margin-top: 20px;
-        }
-
-        .banner{
-            background-color: black;
-        }
-
-        .light-grey-button {
-            background-color: #FAF9F6;
-            color: #495057;
-            border-color: #dee2e6;
-        }
-
-        .crypto-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .light-grey-card{
-            background-color: #FAF9F6;
-        }
-
-        .crypto-item {
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            margin: 10px 0;
-            padding: 15px;
-            background-color: #fff;
-            transition: box-shadow 0.3s ease-in-out;
-        }
-
-        .crypto-item:hover {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .price {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .crypto-details p {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        canvas {
-            max-width: 100%;
-            margin-top: 15px;
-        }
-
-        .small-icon {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-        }
-
-        /* Additional styles for modal header */
-        .modal-header {
-            background-color: #007BFF;
-            color: #fff;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        /* Additional styles for modal body table */
-        .crypto-details table {
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .crypto-details td {
-            padding: 8px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        /* Additional styles for modal footer */
-        .modal-footer {
-            border-top: 1px solid #dee2e6;
-            padding-top: 15px;
-        }
-        .header {
-          font-family: 'Montserrat', sans-serif;
-          overflow: hidden;
-          background-color: #1a2039;
-          padding: 20px 10px;
-        }
-
-        .header a {
-          float: left;
-          color: #f6f6f7;
-          text-align: center;
-          padding: 12px;
-          text-decoration: none;
-          font-size: 18px;
-          line-height: 25px;
-          border-radius: 4px;
-          transition: background-color 0.3s, color 0.3s;
-        }
-
-        .header a:not(:last-child) {
-          border-right: 1px solid #57606f;
-        }
-
-        .header a.logo {
-          font-size: 25px;
-          font-weight: bold;
-        }
-
-        .header a:hover {
-          background-color: #d9d8da;
-          color: black;
-        }
-
-        .header-right {
-          float: right;
-        }
-
-        @media screen and (max-width: 500px) {
-          .header a {
-            float: none;
-            display: block;
-            text-align: left;
-            border-right: none;
-          }
-          .header-right {
-            float: none;
-          }
-        }
-
-        body {
-            margin: 0;
-        }
-
-    </style>
-</head>
-<body>
-    <div class="background-container">
-        <header>
-            <div class="header">
-                <a href="/" class="logo">Xchange</a>
-                <a class="h1">Tickets </a>
-                <div class="header-right">
-                    {% if user.is_authenticated %}
-                        <a href="/wallet">Back</a>
-                        <a href="{% url 'logout_view' %}">Logout</a>
-                    {% else %}
-                        <a href="{% provider_login_url 'google'%}?next=/">Login/Register with Google</a>
-                    {% endif %}
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-lg border-success">
+                <div class="card-header bg-success text-white d-flex align-items-center" style="font-size:1.5rem; font-weight:600; min-height:64px;">
+                    <i class="fas fa-check-circle me-2"></i> Транзакція успішна!
+                </div>
+                <div class="card-body">
+                    <div class="mb-4 text-center">
+                        <i class="fas fa-coins fa-3x text-warning mb-3"></i>
+                        <h4 class="fw-bold">Деталі транзакції</h4>
+                    </div>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold"><i class="fas fa-hashtag me-2 text-secondary"></i>ID транзакції</span>
+                            <span class="text-muted">{{ transaction.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold"><i class="fas fa-money-bill-wave me-2 text-success"></i>Сума</span>
+                            <span class="badge bg-success fs-6">{{ transaction.amount }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold"><i class="fas fa-coins me-2 text-warning"></i>Валюта</span>
+                            <span class="badge bg-warning text-dark fs-6">{{ transaction.currency }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold"><i class="fas fa-arrow-up me-2 text-danger"></i>Відправник</span>
+                            <span class="text-muted">{{ transaction.sender_wallet.address }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold"><i class="fas fa-arrow-down me-2 text-success"></i>Одержувач</span>
+                            <span class="text-muted">{{ transaction.receiver_wallet.address }}</span>
+                        </li>
+                    </ul>
+                    <div class="d-flex justify-content-end">
+                        <a href="/wallet" class="btn btn-outline-primary me-2"><i class="fas fa-wallet me-1"></i> До гаманця</a>
+                        <a href="/wallet/history" class="btn btn-outline-secondary"><i class="fas fa-history me-1"></i> Історія транзакцій</a>
+                    </div>
                 </div>
             </div>
-        </header>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Success</title>
-</head>
-<body>
-    <h1>Transaction Details</h1>
-    <p>Transaction ID: {{ transaction.id }}</p>
-    <p>Amount: {{ transaction.amount }}</p>
-    <p>Currency: {{ transaction.currency }}</p>
-    <p>Sender Wallet: {{ transaction.sender_wallet.address }}</p>
-    <p>Receiver Wallet: {{ transaction.receiver_wallet.address }}</p>
-</body>
-</html>
+        </div>
+    </div>
+</div>
+{% endblock %}

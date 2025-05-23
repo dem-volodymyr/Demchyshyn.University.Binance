@@ -4,6 +4,7 @@ from .models import Wallet, Transaction
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 
 @login_required
@@ -17,9 +18,11 @@ def sent_alert(request, user, receiver_wallet, amount, currency):
 
 @login_required
 def wallet(request):
+    user = request.user
+    sender_wallet_id = user.username
+    # Створити гаманець, якщо його ще немає
+    wallets, _ = Wallet.objects.get_or_create(address=sender_wallet_id)
     if request.method == 'POST':
-        user = request.user
-        sender_wallet_id = user.username
         receiver_wallet_id = request.POST.get('receiver_wallet_id')
         amount = float(request.POST.get('amount'))
         currency = request.POST.get('currency')
@@ -36,9 +39,6 @@ def wallet(request):
             return redirect('success', transaction_id=transaction.id)
         else:
             return render(request, 'error.html', {'message': 'Insufficient balance.'})
-    user = request.user
-    sender_wallet_id = user.username
-    wallets = Wallet.objects.get(address=sender_wallet_id)
     return render(request, 'wallet.html', {'wallets': wallets})
 
 
@@ -49,9 +49,10 @@ def callback_view(request):
 @login_required
 def wallet_history(request):
     user = request.user
-    sender_wallet = user.id
-    print(sender_wallet)
-    transactions = Transaction.objects.filter(receiver_wallet_id=sender_wallet)
+    wallet = Wallet.objects.get(address=user.username)
+    transactions = Transaction.objects.filter(
+        Q(sender_wallet=wallet) | Q(receiver_wallet=wallet)
+    )
     return render(request, 'wallet_history.html', {'transactions': transactions})
 
 

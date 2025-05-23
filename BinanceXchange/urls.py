@@ -16,7 +16,7 @@ urlpatterns = [
     path('', include("edit_profile.urls")),
     path('', include("support.urls")),
     path('', include("referral.urls")),
-    path('', include("twofactor.urls")),
+    #path('', include("twofactor.urls")),
 ]
 
 if settings.DEBUG:
