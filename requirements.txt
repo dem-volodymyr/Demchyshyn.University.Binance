@@ -3,7 +3,6 @@ django-allauth
 django-environ
 django-formtools
 django-mysql
-django-otp
 django-qr-code
 django-two-factor-auth
 Pillow
@@ -12,7 +11,4 @@ qrcode
 requests
 pyjwt
 cryptography
-cryptography
-openai
 python-dateutil
-django-environ

@@ -60,8 +60,6 @@ INSTALLED_APPS = [
     'support',
     'referral',
     'qr_code',
-    'django_otp',
-    'django_otp.plugins.otp_totp',
 ]
 
 MIDDLEWARE = [
@@ -141,7 +139,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# Optional for development:
+STATICFILES_DIRS = [
+    BASE_DIR / "staticfiles",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -185,8 +188,5 @@ EMAIL_PORT = env('EMAIL_PORT', default=587)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-
-LEPTON_API_KEY = env('LEPTON_API_KEY')
-LEPTON_BASE_URL = env('LEPTON_BASE_URL', default='https://openchat-3-5.lepton.run/api/v1/')
-
+OPEN_API = env('OPEN_API')
 COINGECKO_API_KEY = env('COINGECKO_API_KEY', default=None)

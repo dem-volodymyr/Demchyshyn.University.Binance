@@ -29,7 +29,7 @@ def ticket_detail(request, pk):
             comment.ticket = ticket
             comment.user = request.user
             comment.save()
-            generate_ai_response(ticket)  # Trigger AI response
+            generate_ai_response(ticket, comment)  # Trigger AI response на новий коментар
             return redirect('ticket_detail', pk=ticket.pk)
     else:
         comment_form = CommentForm()
