@@ -1,38 +1,49 @@
-from django.test import TestCase
-from django.core import mail
+from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from django.conf import settings
-from wallet.views import sent_alert
+from .models import Wallet, Transaction
+from django.urls import reverse
+from unittest.mock import patch
 
-
-class SentAlertTestCase(TestCase):
+class WalletModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
-        self.receiver_wallet = 'receiver_wallet_address'
-        self.amount = 100
-        self.currency = 'USD'
+        self.wallet = Wallet.objects.create(address='testwallet')
 
-    def test_sent_alert_email_sent(self):
-        sent_alert(self.request, self.user, self.receiver_wallet, self.amount, self.currency)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, 'Wallet transaction successful!')
-        self.assertEqual(mail.outbox[0].body,
-                         f'{self.user.username}, you sent to {self.receiver_wallet}, {self.amount}{self.currency}!')
-        self.assertEqual(mail.outbox[0].from_email, settings.EMAIL_HOST_USER)
-        self.assertEqual(mail.outbox[0].to, [self.user.email])
+    def test_wallet_creation(self):
+        self.assertEqual(self.wallet.address, 'testwallet')
 
-    def test_sent_alert_email_not_sent_missing_user_email(self):
-        # Creating a user without an email address
-        user_without_email = User.objects.create_user(username='noemailuser', password='password123')
-        sent_alert(self.request, user_without_email, self.receiver_wallet, self.amount, self.currency)
-        # Asserting that no email is sent as the user doesn't have an email address
-        self.assertEqual(len(mail.outbox), 0)
+class TransactionModelTest(TestCase):
+    def setUp(self):
+        self.wallet1 = Wallet.objects.create(address='w1')
+        self.wallet2 = Wallet.objects.create(address='w2')
+        self.tx = Transaction.objects.create(sender_wallet=self.wallet1, receiver_wallet=self.wallet2, amount=1, currency='BTC')
 
-    def test_sent_alert_email_not_sent_fail_silently(self):
-        # Modifying settings to fail silently
-        settings.EMAIL_FAIL_SILENTLY = True
-        sent_alert(self.request, self.user, self.receiver_wallet, self.amount, self.currency)
-        # Asserting that no email is sent when fail_silently is set to True
-        self.assertEqual(len(mail.outbox), 0)
-        # Resetting settings
-        settings.EMAIL_FAIL_SILENTLY = False
+    def test_transaction_fields(self):
+        self.assertEqual(self.tx.currency, 'BTC')
+
+class WalletViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='testuser', password='pass')
+        self.wallet = Wallet.objects.create(address='testuser', btc=10, usdt=1000)
+        self.wallet2 = Wallet.objects.create(address='receiver', btc=0, usdt=0)
+        self.client.login(username='testuser', password='pass')
+
+    def test_wallet_get(self):
+        response = self.client.get(reverse('wallet'))
+        self.assertEqual(response.status_code, 200)
+
+    @patch('wallet.views.sent_alert')
+    def test_wallet_post_success(self, mock_alert):
+        data = {'receiver_wallet_id': 'receiver', 'amount': 1, 'currency': 'BTC'}
+        response = self.client.post(reverse('wallet'), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Transaction.objects.filter(sender_wallet=self.wallet, receiver_wallet=self.wallet2).exists())
+
+    def test_wallet_history(self):
+        response = self.client.get(reverse('wallet_history'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_success_view_found(self):
+        tx = Transaction.objects.create(sender_wallet=self.wallet, receiver_wallet=self.wallet2, amount=1, currency='BTC')
+        response = self.client.get(reverse('success', args=[tx.id]))
+        self.assertEqual(response.status_code, 200)

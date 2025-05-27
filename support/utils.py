@@ -1,5 +1,4 @@
 import difflib
-import openai
 import requests
 from .models import FAQ, Comment, User
 from django.conf import settings

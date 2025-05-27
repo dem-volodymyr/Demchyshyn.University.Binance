@@ -1,33 +1,84 @@
 from django.test import TestCase, Client
-from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Order, Wallet
+from .models import Order
+from wallet.models import Wallet
+from django.urls import reverse
+from unittest.mock import patch, Mock
 
+class OrderModelTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='pass')
+        self.wallet = Wallet.objects.create(address='testuser')
+        self.order = Order.objects.create(
+            user=self.user, order_type='buy', crypto='BTC', quantity=1, price=10000, usdt_amount=10000, wallet=self.wallet
+        )
 
-class OrderViewsTestCase(TestCase):
+    def test_order_fields(self):
+        self.assertEqual(self.order.user.username, 'testuser')
+        self.assertEqual(self.order.crypto, 'BTC')
+
+class OrderViewTest(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
-        self.wallet = Wallet.objects.create(address='test_wallet_address', user=self.user)
+        self.user = User.objects.create_user(username='testuser', password='pass')
+        self.wallet = Wallet.objects.create(address='testuser', btc=10, usdt=100000)
+        self.client.login(username='testuser', password='pass')
 
-    def test_order_history_view_authenticated_user(self):
-        self.client.force_login(self.user)
+    def test_order_history(self):
         response = self.client.get(reverse('order_history'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'order_history.html')
 
-    def test_order_history_view_unauthenticated_user(self):
-        response = self.client.get(reverse('order_history'))
-        self.assertRedirects(response, '/accounts/login/?next=/order/history/', target_status_code=302)
+    def test_create_order_get(self):
+        response = self.client.get(reverse('create_order'))
+        self.assertEqual(response.status_code, 200)
 
-    def test_create_order_view_authenticated_user(self):
-        self.client.force_login(self.user)
-        response = self.client.post(reverse('create_order'), {'product': 'test_product', 'quantity': 10, 'price': 20.0})
-        self.assertEqual(response.status_code, 302)  # Redirects to order_history on successful order creation
+    @patch('Order.views.requests.get')
+    def test_create_order_post_valid(self, mock_get):
+        mock_resp = Mock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {'bitcoin': {'usd': 10000}}
+        mock_get.return_value = mock_resp
+        data = {'order_type': 'buy', 'crypto': 'BTC', 'quantity': 1}
+        response = self.client.post(reverse('create_order'), data)
+        self.assertEqual(response.status_code, 302)
 
-        # Check if the order is created
-        self.assertTrue(Order.objects.filter(user=self.user).exists())
+    @patch('Order.views.requests.get')
+    def test_create_order_post_invalid_crypto(self, mock_get):
+        data = {'order_type': 'buy', 'crypto': 'INVALID', 'quantity': 1}
+        response = self.client.post(reverse('create_order'), data)
+        self.assertContains(response, 'Invalid crypto or order type')
 
-    def test_create_order_view_unauthenticated_user(self):
-        response = self.client.post(reverse('create_order'), {'product': 'test_product', 'quantity': 10, 'price': 20.0})
-        self.assertRedirects(response, '/accounts/login/?next=/create/order/', target_status_code=302)
+    @patch('Order.views.requests.get')
+    def test_create_order_post_api_error(self, mock_get):
+        mock_resp = Mock()
+        mock_resp.status_code = 500
+        mock_resp.json.return_value = {}
+        mock_get.return_value = mock_resp
+        data = {'order_type': 'buy', 'crypto': 'BTC', 'quantity': 1}
+        response = self.client.post(reverse('create_order'), data)
+        self.assertContains(response, 'Ціна для цієї криптовалюти зараз недоступна')
+
+    def test_execute_order_sell_success(self):
+        order = Order.objects.create(user=self.user, order_type='sell', crypto='BTC', quantity=1, price=10000, usdt_amount=10000, wallet=self.wallet)
+        response = self.client.get(reverse('execute_order', args=[order.id]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_execute_order_sell_insufficient(self):
+        order = Order.objects.create(user=self.user, order_type='sell', crypto='BTC', quantity=1000, price=10000, usdt_amount=10000, wallet=self.wallet)
+        response = self.client.get(reverse('execute_order', args=[order.id]))
+        self.assertContains(response, 'Insufficient crypto balance')
+
+    def test_execute_order_buy_success(self):
+        order = Order.objects.create(user=self.user, order_type='buy', crypto='BTC', quantity=1, price=10000, usdt_amount=10, wallet=self.wallet)
+        response = self.client.get(reverse('execute_order', args=[order.id]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_execute_order_buy_insufficient(self):
+        order = Order.objects.create(user=self.user, order_type='buy', crypto='BTC', quantity=1, price=10000, usdt_amount=1000000, wallet=self.wallet)
+        response = self.client.get(reverse('execute_order', args=[order.id]))
+        self.assertContains(response, 'Insufficient USDT balance')
+
+    def test_delete_order(self):
+        order = Order.objects.create(user=self.user, order_type='buy', crypto='BTC', quantity=1, price=10000, usdt_amount=10, wallet=self.wallet)
+        response = self.client.get(reverse('delete_order', args=[order.id]))
+        self.assertEqual(response.status_code, 302)

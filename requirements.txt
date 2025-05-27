@@ -2,7 +2,6 @@ Django>=5.2
 django-allauth
 django-environ
 django-formtools
-django-mysql
 django-qr-code
 django-two-factor-auth
 Pillow
@@ -12,3 +11,6 @@ requests
 pyjwt
 cryptography
 python-dateutil
+coverage
+gunicorn
+psycopg2-binary
