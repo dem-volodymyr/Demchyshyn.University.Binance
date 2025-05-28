@@ -381,8 +381,8 @@
                                 </table>
                             </div>
                             <div class="col-md-6">
-                                <div class="chart-container">
-                                    <canvas id="priceChart{{ crypto.id }}"></canvas>
+                                <div class="chart-container" style="height:350px;">
+                                    <canvas id="historicalPricesChart{{ crypto.id }}" style="margin-top:10px; width:100%; height:350px;"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -397,88 +397,6 @@
     </div>
     {% endfor %}
 </div>
-{% for crypto in cryptocurrencies %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('priceChart{{ crypto.id }}');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [{% for p in crypto.hourly_prices %}'{{ p.hour }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-                datasets: [{
-                    label: '{{ crypto.symbol }} Price (USD)',
-                    data: [{% for p in crypto.hourly_prices %}{% if p.price is not None %}{{ p.price }}{% else %}null{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}],
-                    borderColor: '#F0B90B',
-                    backgroundColor: 'rgba(240, 185, 11, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#F0B90B',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: 'rgba(30, 32, 38, 0.9)',
-                        titleColor: '#F0B90B',
-                        bodyColor: '#fff',
-                        borderColor: 'rgba(240, 185, 11, 0.3)',
-                        borderWidth: 1,
-                        padding: 10,
-                        cornerRadius: 8,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `$${context.raw} USD`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value;
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                elements: {
-                    line: {
-                        tension: 0.4
-                    }
-                }
-            }
-        });
-    }
-});
-</script>
-{% endfor %}
 {% endblock %}
 
 {% block extra_js %}
@@ -510,6 +428,72 @@ document.addEventListener('DOMContentLoaded', function() {
                 performSearch();
             }
         });
+
+        // Автоматичне підвантаження графіка при відкритті модалки
+        document.querySelectorAll('.modal').forEach(function(modal) {
+            modal.addEventListener('shown.bs.modal', function(event) {
+                const modalId = modal.getAttribute('id');
+                // Витягуємо cryptoId та cryptoName з id модалки
+                const cryptoId = modalId.replace('myModal', '');
+                // Знаходимо назву крипти по data-атрибуту або з DOM
+                const cryptoName = modal.querySelector('.modal-title').textContent.split('(')[0].trim();
+                loadHistoricalPrices(cryptoId, cryptoName);
+            });
+        });
     });
+
+    // Функція для підвантаження історичних цін за 7 днів
+    function loadHistoricalPrices(cryptoId, cryptoName) {
+        var url = `https://api.coingecko.com/api/v3/coins/${cryptoName.toLowerCase()}/market_chart?vs_currency=usd&days=7`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.prices && data.prices.length > 0) {
+                    var historicalPricesData = {
+                        labels: data.prices.map(entry => {
+                            var date = new Date(entry[0]);
+                            return `${date.getDate()}.${date.getMonth()+1} ${date.getHours()}:00`;
+                        }),
+                        datasets: [{
+                            label: 'Historical Prices (USD)',
+                            data: data.prices.map(entry => entry[1]),
+                            backgroundColor: 'rgba(240, 185, 11, 0.1)',
+                            borderColor: '#F0B90B',
+                            borderWidth: 2,
+                            fill: true,
+                            pointBackgroundColor: '#F0B90B',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    };
+                    var chartId = 'historicalPricesChart' + cryptoId;
+                    var chartElem = document.getElementById(chartId);
+                    if (chartElem) {
+                        if (chartElem._chartInstance) {
+                            chartElem._chartInstance.destroy();
+                        }
+                        var ctx = chartElem.getContext('2d');
+                        var newChart = new Chart(ctx, {
+                            type: 'line',
+                            data: historicalPricesData,
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: false
+                                    }
+                                }
+                            }
+                        });
+                        chartElem._chartInstance = newChart;
+                    }
+                } else {
+                    alert('No historical prices data available.');
+                }
+            })
+            .catch(error => alert('Error fetching historical prices: ' + error));
+    }
 </script>
 {% endblock %}

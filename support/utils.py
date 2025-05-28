@@ -53,7 +53,6 @@ def generate_ai_response(ticket, comment=None):
         return
     try:
         prompt_text = context + f"Ticket Title: {ticket.title}\n\nDescription: {text_for_faq}"
-        print(prompt_text)
         data = {
             "contents": [
                 {
