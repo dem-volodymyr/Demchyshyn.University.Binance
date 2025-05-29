@@ -10,7 +10,7 @@ Demchyshyn Volodymyr
 
 - Email: valdemarmalyna@gmail.com
 - Telegram: https://t.me/dem_volodya
-- Project on Azure: https://binancexchange.azurewebsites.net
+- Project on Azure: demchyshynuniversitybinance-production-25de.up.railway.app
 
 ## Getting Started:
 
