@@ -190,9 +190,11 @@
         .footer {
             background: linear-gradient(120deg, var(--bg-dark) 0%, #141921 70%, #181E27 100%);
             color: #fff;
-            padding: 40px 0 20px;
+            padding: 15px 0 8px;
             margin-top: 60px;
             position: relative;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
         }
         .footer::before {
             content: '';
@@ -434,6 +436,20 @@
                 padding: 0.5rem 0.7rem;
             }
         }
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .page-container {
+            flex: 1 0 auto;
+        }
+        .footer {
+            flex-shrink: 0;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -501,10 +517,10 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="row">
-            <hr class="mt-4 mb-3" style="background-color: #2A2D35; opacity: 0.5;">
-            <div class="text-center text-muted">
-                <small>&copy; {{ year|default:2025 }} Xchange. All rights reserved.</small>
+            <div class="row align-items-center justify-content-center" style="min-height: 30px; display: flex;">
+                <div class="text-center text-muted w-100">
+                    <small style="color: white; display: block;">&copy; {{ year|default:2025 }} Xchange. All rights reserved.</small>
+                </div>
             </div>
         </div>
     </footer>
