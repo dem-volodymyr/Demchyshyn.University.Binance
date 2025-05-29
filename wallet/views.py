@@ -20,15 +20,21 @@ def sent_alert(request, user, receiver_wallet, amount, currency):
 def wallet(request):
     user = request.user
     sender_wallet_id = user.username
-    # Створити гаманець, якщо його ще немає
+    error_message = None
     wallets, _ = Wallet.objects.get_or_create(address=sender_wallet_id)
     if request.method == 'POST':
         receiver_wallet_id = request.POST.get('receiver_wallet_id')
         amount = float(request.POST.get('amount'))
         currency = request.POST.get('currency')
 
-        sender_wallet = Wallet.objects.get(address=sender_wallet_id)
-        receiver_wallet = Wallet.objects.get(address=receiver_wallet_id)
+        try:
+            sender_wallet = Wallet.objects.get(address=sender_wallet_id)
+        except Wallet.DoesNotExist:
+            return render(request, 'wallet_error.html', {'message': 'Ваш гаманець не знайдено.'})
+        try:
+            receiver_wallet = Wallet.objects.get(address=receiver_wallet_id)
+        except Wallet.DoesNotExist:
+            return render(request, 'wallet_error.html', {'message': 'Гаманець отримувача не знайдено. Перевірте адресу.'})
 
         # Перевірка наявності коштів на гаманці
         if sender_wallet.__dict__[currency.lower()] >= amount:
@@ -38,7 +44,7 @@ def wallet(request):
             transaction.save_it()
             return redirect('success', transaction_id=transaction.id)
         else:
-            return render(request, 'error.html', {'message': 'Insufficient balance.'})
+            return render(request, 'wallet_error.html', {'message': 'Недостатньо коштів.'})
     return render(request, 'wallet.html', {'wallets': wallets})
 
 

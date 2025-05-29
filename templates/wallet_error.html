@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-danger">
+                <div class="card-header bg-danger text-white d-flex align-items-center" style="font-size:1.5rem; font-weight:600;">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Помилка
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ message }}</p>
+                    <div class="mt-4">
+                        <a href="{% url 'wallet' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Повернутись до гаманця
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
