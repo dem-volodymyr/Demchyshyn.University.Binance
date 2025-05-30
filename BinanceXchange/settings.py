@@ -152,7 +152,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Site ID
-SITE_ID = env('ID')
+SITE_ID = int(env('ID'))
 
 # Social authentication settings
 SOCIALACCOUNT_LOGIN_ON_GET = True
