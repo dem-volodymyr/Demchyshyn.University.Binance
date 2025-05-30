@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='referral',
             name='code',
-            field=models.CharField(default=uuid.uuid4, max_length=16, unique=True),
+            field=models.CharField(default=uuid.uuid4, max_length=64, unique=True),
         ),
         migrations.AddField(
             model_name='referral',
