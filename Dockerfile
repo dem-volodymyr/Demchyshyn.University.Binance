@@ -23,4 +23,4 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 
 # Стартовий скрипт
-CMD ["sh", "-c", "python add_btc_to_user.py && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn BinanceXchange.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn BinanceXchange.wsgi:application --bind 0.0.0.0:8000"]
