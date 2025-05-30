@@ -3,3 +3,4 @@ coverage.xml
 data.json
 /staticfiles
 misc.xml
+/.idea
