@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Cryptocurrency(models.Model):
-    name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=255)
+    symbol = models.CharField(max_length=20, unique=True)
     market_cap = models.FloatField(null=True, blank=True)
     market_cap_rank = models.IntegerField(null=True, blank=True)
     total_volume = models.FloatField(null=True, blank=True)

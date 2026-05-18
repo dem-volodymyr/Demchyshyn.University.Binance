@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Автотрейдинг — Xchange{% endblock %}
+{% block content %}
+<div class="container py-2">
+    <div class="row justify-content-center g-4">
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-dark text-warning d-flex flex-wrap align-items-center justify-content-between gap-2"
+                     style="font-size:1.35rem; font-weight:600; min-height:64px;">
+                    <span><i class="fas fa-robot me-2"></i> Автотрейдинг (ML)</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-list text-primary me-2"></i> Ваші налаштовані боти</h5>
+                    <div class="row g-3 mb-4">
+                        {% for bot in user_bots %}
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100 bg-light">
+                                <div class="card-body position-relative">
+                                    <form method="post" class="position-absolute top-0 end-0 p-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_bot">
+                                        <input type="hidden" name="symbol" value="{{ bot.symbol }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Видалити бота"><i class="fas fa-times"></i></button>
+                                    </form>
+                                    <h6 class="card-title fw-bold mb-2"><span class="badge bg-dark me-1">{{ bot.symbol }}</span> Бот</h6>
+                                    <p class="card-text small mb-1">Статус: 
+                                        {% if bot.is_active %}<span class="badge bg-success">Увімкнено</span>{% else %}<span class="badge bg-secondary">Вимкнено</span>{% endif %}
+                                    </p>
+                                    <p class="card-text small mb-1">Stop Loss: <strong class="text-danger">{{ bot.stop_loss_pct }}%</strong></p>
+                                    <p class="card-text small mb-1">Take Profit: <strong class="text-success">{{ bot.take_profit_pct }}%</strong></p>
+                                    <p class="card-text small mb-0">Сума на угоду: <strong>{{ bot.trade_amount_usdt }} USDT</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-info small mb-0">У вас ще немає налаштованих ботів. Додайте нового нижче.</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <form method="post" class="mb-4 bg-light p-3 border rounded shadow-sm">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="save_settings">
+                        <h5 class="mb-3"><i class="fas fa-plus-circle text-secondary me-2"></i> Додати або змінити бота</h5>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label text-muted small">Валюта</label>
+                                <select name="symbol" class="form-select">
+                                    {% for pair in supported_pairs %}
+                                        <option value="{{ pair }}">{{ pair }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label text-muted small">Stop Loss (відсоток)</label>
+                                <input type="number" step="0.01" name="stop_loss_pct" class="form-control" value="0.02">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label text-muted small">Take Profit (відсоток)</label>
+                                <input type="number" step="0.01" name="take_profit_pct" class="form-control" value="0.05">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label text-muted small">Сума (USDT)</label>
+                                <input type="number" step="0.01" name="trade_amount_usdt" class="form-control" value="100.00">
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check form-switch fs-5 mb-1 mt-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" name="is_active" id="isActiveSwitch" checked>
+                                    <label class="form-check-label fs-6" for="isActiveSwitch">Увімкнути</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary w-100" title="Зберегти бота"><i class="fas fa-save"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if user.is_staff %}
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="run_cycle">
+                                <button type="submit" class="btn btn-outline-warning">
+                                    <i class="fas fa-play me-1"></i> (Staff) Тестовий запуск усіх активних
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+
+                    <h5 class="mb-3"><i class="fas fa-chart-line text-warning me-2"></i>Відкриті позиції (SL/TP)</h5>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Пара</th>
+                                    <th>Кількість</th>
+                                    <th>Вхід</th>
+                                    <th>Stop Loss</th>
+                                    <th>Take Profit</th>
+                                    <th>Відкрито</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pos in open_positions %}
+                                <tr>
+                                    <td><span class="badge bg-dark">{{ pos.symbol }}</span></td>
+                                    <td>{{ pos.quantity }}</td>
+                                    <td>{{ pos.entry_price }}</td>
+                                    <td class="text-danger">{{ pos.stop_loss }}</td>
+                                    <td class="text-success">{{ pos.take_profit }}</td>
+                                    <td>{{ pos.opened_at|date:"Y-m-d H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center text-muted">Немає відкритих позицій.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if closed_positions %}
+                    <h6 class="text-muted mb-2">Останні закриті позиції</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Пара</th>
+                                    <th>Кількість</th>
+                                    <th>Вхід</th>
+                                    <th>Закрито</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pos in closed_positions %}
+                                <tr class="text-muted">
+                                    <td>{{ pos.symbol }}</td>
+                                    <td>{{ pos.quantity }}</td>
+                                    <td>{{ pos.entry_price }}</td>
+                                    <td>{{ pos.closed_at|date:"Y-m-d H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    <h5 class="mb-3"><i class="fas fa-history text-warning me-2"></i>Журнал сигналів та угод</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Час</th>
+                                    <th>Пара</th>
+                                    <th>Сигнал</th>
+                                    <th>Ціна ринку</th>
+                                    <th>Прогноз ML</th>
+                                    <th>Кількість</th>
+                                    <th>Дія</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td class="small">{{ log.created_at|date:"Y-m-d H:i:s" }}</td>
+                                    <td><span class="badge bg-secondary">{{ log.symbol }}</span></td>
+                                    <td>
+                                        {% if log.signal == 'BUY' %}
+                                            <span class="badge bg-success"><i class="fas fa-arrow-up"></i> BUY</span>
+                                        {% elif log.signal == 'SELL' %}
+                                            <span class="badge bg-danger"><i class="fas fa-arrow-down"></i> SELL</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">HOLD</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.market_price }}</td>
+                                    <td>{% if log.predicted_price %}{{ log.predicted_price }}{% else %}—{% endif %}</td>
+                                    <td>{% if log.quantity %}{{ log.quantity }}{% else %}—{% endif %}</td>
+                                    <td>
+                                        {% if 'executed' in log.action_taken %}
+                                            <span class="badge bg-success">{{ log.action_taken }}</span>
+                                        {% elif 'skipped' in log.action_taken or log.action_taken == 'hold' %}
+                                            <span class="badge bg-warning text-dark">{{ log.action_taken }}</span>
+                                        {% elif log.action_taken == 'error' %}
+                                            <span class="badge bg-danger">{{ log.action_taken }}</span>
+                                        {% else %}
+                                            <span class="badge bg-info text-dark">{{ log.action_taken }}</span>
+                                        {% endif %}
+                                        {% if log.error_message %}
+                                            <i class="fas fa-info-circle text-muted ms-1" title="{{ log.error_message }}"></i>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        Поки немає записів. Запустіть <code>python manage.py run_autotrading</code>
+                                        після налаштування бота.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

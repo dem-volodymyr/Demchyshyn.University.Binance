@@ -37,12 +37,34 @@ This project supports running with Docker and Docker Compose, including a Postgr
    ```
 3. Access the app at [http://localhost:8000](http://localhost:8000)
 
-### Data Migration from SQLite (optional)
-If you are migrating from SQLite, you can use Django's `dumpdata` and `loaddata` commands:
+### Data Migration from SQLite to Docker (PostgreSQL)
+
+1. Copy your local `db.sqlite3` into the project root (or note its path).
+2. Run the migration script:
+
+**Windows (PowerShell):**
+```powershell
+.\scripts\migrate_sqlite_to_docker.ps1
+# optional: wipe existing Docker DB first
+.\scripts\migrate_sqlite_to_docker.ps1 -ResetPostgres
+# custom SQLite path
+.\scripts\migrate_sqlite_to_docker.ps1 -SqlitePath "C:\path\to\db.sqlite3"
+```
+
+**Linux / macOS:**
 ```sh
-python manage.py dumpdata > data.json
-# After switching to PostgreSQL
-python manage.py loaddata data.json
+chmod +x scripts/migrate_sqlite_to_docker.sh
+./scripts/migrate_sqlite_to_docker.sh
+# RESET_POSTGRES=1 ./scripts/migrate_sqlite_to_docker.sh
+```
+
+Manual steps (equivalent):
+```sh
+python manage.py export_sqlite_fixture --sqlite db.sqlite3 --output fixtures/sqlite_export.json
+docker compose up -d db
+docker compose run --rm web python manage.py migrate --noinput
+docker compose run --rm web python manage.py loaddata fixtures/sqlite_export.json
+docker compose up -d web
 ```
 
 

@@ -27,16 +27,20 @@ def logout_view(request):
 
 
 def crypto_list(request):
+    import logging
+
     import requests
+
+    logger = logging.getLogger(__name__)
 
     url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=100&page=1&sparkline=false"
 
-    headers = {
-        "accept": "application/json",
-        "x-cg-demo-api-key": "CG-L2LFhe4vEhqN8aLH2seaVAh1"
-    }
+    headers = {"accept": "application/json"}
+    api_key = getattr(settings, 'COINGECKO_API_KEY', None)
+    if api_key:
+        headers['x-cg-pro-api-key'] = api_key
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=30)
 
     """
     api_url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=100&page=1&sparkline=false'
@@ -55,49 +59,48 @@ def crypto_list(request):
         print("Success")
         cryptos_data = response.json()
         for crypto_data in cryptos_data:
-            symbol = crypto_data['symbol'].upper()
-            name = crypto_data['name']
-            market_cap = crypto_data['market_cap']
-            market_cap_rank = crypto_data['market_cap_rank']
-            total_volume = crypto_data['total_volume']
-            high_24h = crypto_data['high_24h']
-            low_24h = crypto_data['low_24h']
-            price_change_24h = crypto_data['price_change_24h']
-            max_supply = crypto_data['max_supply']
-            total_supply = crypto_data['total_supply']
-            last_updated = crypto_data['last_updated']
-            image = crypto_data['image']
-            circulating_supply = crypto_data['circulating_supply']
+            symbol = str(crypto_data.get('symbol', '')).upper()[:20]
+            if not symbol:
+                continue
+            name = str(crypto_data.get('name', symbol))[:255]
+            circulating = crypto_data.get('circulating_supply')
+            if circulating is not None:
+                circulating = str(circulating)[:1600]
 
-            # Update or create cryptocurrency records in the database
-            crypto, created = Cryptocurrency.objects.get_or_create(
-                symbol=symbol,
-                defaults={
-                    'name': name,
-                    'market_cap': market_cap,
-                    'market_cap_rank': market_cap_rank,
-                    'total_volume': total_volume,
-                    'high_24h': high_24h,
-                    'low_24h': low_24h,
-                    'price_change_24h': price_change_24h,
-                    'max_supply': max_supply,
-                    'total_supply': total_supply,
-                    'last_updated': last_updated,
-                    'image': image,
-                    'circulating_supply': circulating_supply,
-                }
-            )
-            CryptocurrencyPrice.objects.create(
-                cryptocurrency=crypto,
-                price=crypto_data['current_price'],
-            )
+            defaults = {
+                'name': name,
+                'market_cap': crypto_data.get('market_cap'),
+                'market_cap_rank': crypto_data.get('market_cap_rank'),
+                'total_volume': crypto_data.get('total_volume'),
+                'high_24h': crypto_data.get('high_24h'),
+                'low_24h': crypto_data.get('low_24h'),
+                'price_change_24h': crypto_data.get('price_change_24h'),
+                'max_supply': crypto_data.get('max_supply'),
+                'total_supply': crypto_data.get('total_supply'),
+                'last_updated': crypto_data.get('last_updated'),
+                'image': (crypto_data.get('image') or '')[:1600] or None,
+                'circulating_supply': circulating,
+            }
+
+            try:
+                crypto, _ = Cryptocurrency.objects.update_or_create(
+                    symbol=symbol,
+                    defaults=defaults,
+                )
+                CryptocurrencyPrice.objects.create(
+                    cryptocurrency=crypto,
+                    price=crypto_data['current_price'],
+                )
+            except Exception as exc:
+                logger.warning('Skip crypto %s: %s', symbol, exc)
     else:
         # Handle API request failure
         error_message = f"Failed to fetch cryptocurrency data. Status code: {response.status_code}"
         return render(request, 'error.html', {'error_message': error_message})
 
     # Get hourly price data for each crypto for today (last price per hour for 24 hours)
-    cryptocurrencies = Cryptocurrency.objects.all()
+    from django.db.models import F
+    cryptocurrencies = Cryptocurrency.objects.all().order_by(F('market_cap_rank').asc(nulls_last=True))
     now = timezone.now()
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     for crypto in cryptocurrencies:

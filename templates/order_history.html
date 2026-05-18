@@ -5,8 +5,11 @@
     <div class="row justify-content-center">
         <div class="col-lg-11">
             <div class="card shadow-lg">
-                <div class="card-header bg-dark text-warning d-flex align-items-center" style="font-size:1.5rem; font-weight:600; min-height:64px;">
-                    <i class="fas fa-list me-2"></i> Історія ордерів
+                <div class="card-header bg-dark text-warning d-flex align-items-center justify-content-between flex-wrap gap-2" style="font-size:1.5rem; font-weight:600; min-height:64px;">
+                    <span><i class="fas fa-list me-2"></i> Історія ордерів</span>
+                    <a href="{% url 'autotrading_dashboard' %}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-robot me-1"></i> Автотрейдинг
+                    </a>
                 </div>
                 <div class="card-body">
                     {% if error %}

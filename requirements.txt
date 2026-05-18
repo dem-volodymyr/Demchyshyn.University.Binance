@@ -15,3 +15,13 @@ coverage
 gunicorn
 psycopg2-binary
 dj-database-url
+numpy
+pandas
+tensorflow
+scikit-learn
+keras
+matplotlib
+yfinance
+joblib
+whitenoise
+seaborn

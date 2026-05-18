@@ -27,17 +27,43 @@ env = environ.Env(
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
+
+def _database_url():
+    url = os.environ.get('DATABASE_URL')
+    if url:
+        return url
+    name = os.environ.get('DJANGO_DB_NAME')
+    user = os.environ.get('DJANGO_DB_USER')
+    password = os.environ.get('DJANGO_DB_PASSWORD')
+    if name and user and password is not None:
+        host = os.environ.get('DJANGO_DB_HOST', 'localhost')
+        port = os.environ.get('DJANGO_DB_PORT', '5432')
+        return f'postgresql://{user}:{password}@{host}:{port}/{name}'
+    return f'sqlite:///{BASE_DIR / "db.sqlite3"}'
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = env('DJANGO_SECRET_KEY', default='django-insecure-change-me-for-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DJANGO_DEBUG', default=True)
+DEBUG = env.bool('DJANGO_DEBUG', default=True)
 
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
-CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGINS')
+_LOCAL_ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'web', '[::1]']
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=_LOCAL_ALLOWED_HOSTS)
+if DEBUG:
+    ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS + _LOCAL_ALLOWED_HOSTS))
+
+_LOCAL_CSRF_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://0.0.0.0:8000',
+]
+CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGINS', default=_LOCAL_CSRF_ORIGINS)
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS + _LOCAL_CSRF_ORIGINS))
 
 # Application definition
 
@@ -61,10 +87,12 @@ INSTALLED_APPS = [
     'support',
     'referral',
     'qr_code',
+    'autotrading',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,7 +128,8 @@ WSGI_APPLICATION = 'BinanceXchange.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL')
+        default=_database_url(),
+        conn_max_age=600,
     )
 }
 
@@ -152,7 +181,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Site ID
-SITE_ID = int(env('ID'))
+SITE_ID = env.int('ID', default=1)
 
 # Social authentication settings
 SOCIALACCOUNT_LOGIN_ON_GET = True
@@ -174,6 +203,15 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [STATIC_DIR]
@@ -182,11 +220,27 @@ STATICFILES_DIRS = [STATIC_DIR]
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = env('EMAIL_PORT', default=587)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-OPEN_API = env('OPEN_API')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = env('EMAIL_PORT', default=587)
+    EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+OPEN_API = env('OPEN_API', default='')
 COINGECKO_API_KEY = env('COINGECKO_API_KEY', default=None)
+
+# Auto-trading bot (management command: python manage.py run_autotrading)
+AUTO_TRADING = {
+    'enabled': env.bool('AUTO_TRADING_ENABLED', default=False),
+    'username': env('AUTO_TRADING_USERNAME', default=None),
+    'pairs': ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'ADA', 'MATIC', 'DOT'],
+    'position_size_usdt': env.float('AUTO_TRADING_POSITION_USDT', default=100),
+    'buy_threshold': 1.005,
+    'min_usdt_for_buy': 10,
+    'stop_loss_pct': env.float('AUTO_TRADING_STOP_LOSS_PCT', default=0.02),
+    'take_profit_pct': env.float('AUTO_TRADING_TAKE_PROFIT_PCT', default=0.05),
+    'sequence_length': 60,
+}

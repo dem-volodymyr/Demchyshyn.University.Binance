@@ -1,6 +1,7 @@
 .env
 coverage.xml
 data.json
+fixtures/*.json
 /staticfiles
 misc.xml
 /.idea

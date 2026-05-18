@@ -477,6 +477,9 @@
                                     <a class="nav-link" href="/order_history"><i class="fas fa-exchange-alt"></i> Orders</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'autotrading_dashboard' %}"><i class="fas fa-robot"></i> Auto</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="/profile/"><i class="fas fa-user"></i> Profile</a>
                                 </li>
                                 <li class="nav-item">
@@ -490,7 +493,10 @@
                                 </li>
                             {% else %}
                                 <li class="nav-item">
-                                    <a class="nav-link btn btn-primary" href="{% provider_login_url 'google'%}?next=/"><i class="fab fa-google"></i> Login/Register</a>
+                                    <a class="nav-link" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt"></i> Log In</a>
+                                </li>
+                                <li class="nav-item ms-2">
+                                    <a class="nav-link btn btn-primary px-3" href="{% url 'account_signup' %}"><i class="fas fa-user-plus"></i> Sign Up</a>
                                 </li>
                             {% endif %}
                         </ul>

@@ -4,31 +4,68 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: ${DJANGO_DB_NAME}
-      POSTGRES_USER: ${DJANGO_DB_USER}
-      POSTGRES_PASSWORD: ${DJANGO_DB_PASSWORD}
+      POSTGRES_DB: ${DJANGO_DB_NAME:-binance}
+      POSTGRES_USER: ${DJANGO_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DJANGO_DB_PASSWORD:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DJANGO_DB_USER:-postgres} -d ${DJANGO_DB_NAME:-binance}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
-    command: gunicorn BinanceXchange.wsgi:application --bind 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn BinanceXchange.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      - DJANGO_DB_NAME=${DJANGO_DB_NAME}
-      - DJANGO_DB_USER=${DJANGO_DB_USER}
-      - DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}
-      - DJANGO_DB_HOST=${DJANGO_DB_HOST}
-      - DJANGO_DB_PORT=${DJANGO_DB_PORT}
-      - DEBUG=1
+      DJANGO_DB_NAME: ${DJANGO_DB_NAME:-binance}
+      DJANGO_DB_USER: ${DJANGO_DB_USER:-postgres}
+      DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD:-postgres}
+      DJANGO_DB_HOST: db
+      DJANGO_DB_PORT: "5432"
+      DATABASE_URL: postgresql://${DJANGO_DB_USER:-postgres}:${DJANGO_DB_PASSWORD:-postgres}@db:5432/${DJANGO_DB_NAME:-binance}
+      ID: ${ID:-1}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-docker-dev-key}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-1}
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0,web
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      OPEN_API: ${OPEN_API:-}
+
+  autotrading_bot:
+    build: .
+    command: >
+      sh -c "python manage.py run_autotrading_bot"
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DJANGO_DB_NAME: ${DJANGO_DB_NAME:-binance}
+      DJANGO_DB_USER: ${DJANGO_DB_USER:-postgres}
+      DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD:-postgres}
+      DJANGO_DB_HOST: db
+      DJANGO_DB_PORT: "5432"
+      DATABASE_URL: postgresql://${DJANGO_DB_USER:-postgres}:${DJANGO_DB_PASSWORD:-postgres}@db:5432/${DJANGO_DB_NAME:-binance}
+      ID: ${ID:-1}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-docker-dev-key}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-1}
+      OPEN_API: ${OPEN_API:-}
 
 volumes:
   postgres_data:
-

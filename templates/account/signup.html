@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block title %}Sign Up - Xchange{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0" style="border-radius: 16px;">
+            <div class="card-header text-center" style="background: var(--bg-card); padding: 30px 20px 10px; border-bottom: none;">
+                <h3 class="card-title mb-1" style="font-size: 24px;">Create an Account</h3>
+                <p class="text-muted" style="font-size: 14px;">Join Xchange today</p>
+            </div>
+            <div class="card-body p-4">
+                
+                <a href="{% provider_login_url 'google' %}?next=/" class="btn btn-outline-dark w-100 mb-4" style="border-radius: 8px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <i class="fab fa-google text-danger"></i> Sign up with Google
+                </a>
+
+                <div class="d-flex align-items-center mb-4">
+                    <hr class="flex-grow-1" style="border-color: var(--border-color);">
+                    <span class="px-3 text-muted" style="font-size: 13px;">OR</span>
+                    <hr class="flex-grow-1" style="border-color: var(--border-color);">
+                </div>
+
+                <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger p-2" style="font-size: 14px;">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label text-muted" style="font-size: 14px; font-weight: 500;">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text mt-1 text-muted" style="font-size: 11px;">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-danger mt-1" style="font-size: 12px;">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 mt-2" style="font-size: 16px; border-radius: 8px;">Sign Up</button>
+                    
+                    {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                    {% endif %}
+                </form>
+
+                <div class="text-center mt-4" style="font-size: 14px;">
+                    <span class="text-muted">Already have an account?</span> 
+                    <a href="{{ login_url }}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Log In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add bootstrap form-control class to all inputs in the signup form
+    document.addEventListener("DOMContentLoaded", function() {
+        var inputs = document.querySelectorAll('#signup_form input');
+        inputs.forEach(function(input) {
+            if (input.type !== 'hidden' && input.type !== 'submit') {
+                input.classList.add('form-control');
+                input.classList.add('form-control-lg');
+                input.style.fontSize = '15px';
+            }
+        });
+    });
+</script>
+{% endblock %}
