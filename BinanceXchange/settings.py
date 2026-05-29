@@ -74,11 +74,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'tracker',
     'wallet',
     'binance_register',
@@ -99,7 +94,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'BinanceXchange.urls'
@@ -180,37 +174,9 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Site ID
-SITE_ID = env.int('ID', default=1)
-
-# Social authentication settings
-SOCIALACCOUNT_LOGIN_ON_GET = True
-
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend'
-    ]
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
-
-SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
-SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
-
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
@@ -219,6 +185,7 @@ STATICFILES_DIRS = [STATIC_DIR]
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
 
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
@@ -236,11 +203,19 @@ COINGECKO_API_KEY = env('COINGECKO_API_KEY', default=None)
 AUTO_TRADING = {
     'enabled': env.bool('AUTO_TRADING_ENABLED', default=False),
     'username': env('AUTO_TRADING_USERNAME', default=None),
-    'pairs': ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'ADA', 'MATIC', 'DOT'],
+    'pairs': ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'AVAX', 'ADA', 'MATIC', 'DOT'],
     'position_size_usdt': env.float('AUTO_TRADING_POSITION_USDT', default=100),
     'buy_threshold': 1.005,
+    'buy_return_threshold': env.float('AUTO_TRADING_BUY_RETURN', default=0.003),
+    'sell_return_threshold': env.float('AUTO_TRADING_SELL_RETURN', default=-0.003),
     'min_usdt_for_buy': 10,
     'stop_loss_pct': env.float('AUTO_TRADING_STOP_LOSS_PCT', default=0.02),
     'take_profit_pct': env.float('AUTO_TRADING_TAKE_PROFIT_PCT', default=0.05),
     'sequence_length': 60,
+    'gate_enabled': env.bool('AUTO_TRADING_GATE_ENABLED', default=False),
+    'gate_min_r2': env.float('AUTO_TRADING_GATE_MIN_R2', default=0.0),
+    'gate_min_directional_acc': env.float('AUTO_TRADING_GATE_MIN_DIR_ACC', default=51.5),
+    'gate_max_mape': env.float('AUTO_TRADING_GATE_MAX_MAPE', default=15.0),
+    'gate_require_log_return': True,
+    'signal_centering': env.bool('AUTO_TRADING_SIGNAL_CENTERING', default=True),
 }

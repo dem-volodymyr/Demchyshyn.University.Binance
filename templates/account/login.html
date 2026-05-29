@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load socialaccount %}
 
 {% block title %}Log In - Xchange{% endblock %}
 
@@ -13,56 +12,32 @@
             </div>
             <div class="card-body p-4">
                 
-                <a href="{% provider_login_url 'google' %}?next=/" class="btn btn-outline-dark w-100 mb-4" style="border-radius: 8px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <i class="fab fa-google text-danger"></i> Continue with Google
-                </a>
-
-                <div class="d-flex align-items-center mb-4">
-                    <hr class="flex-grow-1" style="border-color: var(--border-color);">
-                    <span class="px-3 text-muted" style="font-size: 13px;">OR</span>
-                    <hr class="flex-grow-1" style="border-color: var(--border-color);">
-                </div>
-
-                <form method="POST" action="{% url 'account_login' %}">
+                <form method="POST" action="{% url 'login' %}">
                     {% csrf_token %}
                     
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger p-2" style="font-size: 14px;">
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
                     <div class="mb-3">
                         <label for="id_login" class="form-label text-muted" style="font-size: 14px; font-weight: 500;">Username or Email</label>
                         <input type="text" name="login" class="form-control form-control-lg" placeholder="Enter your username or email" autocomplete="username" maxlength="150" required id="id_login" style="font-size: 15px;">
-                        {% if form.login.errors %}
-                        <div class="text-danger mt-1" style="font-size: 12px;">{{ form.login.errors|striptags }}</div>
-                        {% endif %}
                     </div>
 
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <label for="id_password" class="form-label text-muted mb-0" style="font-size: 14px; font-weight: 500;">Password</label>
-                            <a href="{% url 'account_reset_password' %}" tabindex="-1" style="font-size: 13px; color: var(--primary-color); text-decoration: none;">Forgot password?</a>
+                            <span class="text-muted" style="font-size: 13px;">Use your username or email</span>
                         </div>
                         <input type="password" name="password" class="form-control form-control-lg mt-2" placeholder="Enter your password" autocomplete="current-password" required id="id_password" style="font-size: 15px;">
-                        {% if form.password.errors %}
-                        <div class="text-danger mt-1" style="font-size: 12px;">{{ form.password.errors|striptags }}</div>
-                        {% endif %}
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 py-2" style="font-size: 16px; border-radius: 8px;">Log In</button>
                     
-                    {% if redirect_field_value %}
-                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                    {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}" />
                     {% endif %}
                 </form>
 
                 <div class="text-center mt-4" style="font-size: 14px;">
                     <span class="text-muted">Don't have an account?</span> 
-                    <a href="{{ signup_url }}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Sign Up</a>
+                    <a href="{% url 'signup' %}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Sign Up</a>
                 </div>
             </div>
         </div>

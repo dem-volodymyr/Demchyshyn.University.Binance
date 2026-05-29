@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}OTP Setup - Xchange{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-7">
+        <div class="card shadow-lg">
+            <div class="card-header bg-dark text-warning d-flex align-items-center" style="font-size:1.4rem; font-weight:600;">
+                <i class="fas fa-shield-alt me-2"></i> OTP Authentication
+            </div>
+            <div class="card-body">
+                {% if force_otp_setup %}
+                <div class="alert alert-warning">
+                    2FA setup is required to continue using your account.
+                </div>
+                {% endif %}
+                <p class="text-muted">
+                    Scan this QR code in Google Authenticator / Authy, then enter the 6-digit token to enable OTP login.
+                </p>
+                <div class="text-center mb-3">
+                    <img src="{{ qr_data_uri }}" alt="OTP QR Code" style="max-width: 260px; width: 100%; border: 1px solid #ddd; border-radius: 10px; padding: 8px;">
+                </div>
+                <p class="text-center mb-4">
+                    <small class="text-muted">Backup secret: <code>{{ secret }}</code></small>
+                </p>
+
+                <form method="post" class="mb-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="enable">
+                    <div class="mb-3">
+                        <label for="otp_token" class="form-label">OTP Token</label>
+                        <input type="text" name="otp_token" id="otp_token" class="form-control" maxlength="6" placeholder="123456" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enable OTP</button>
+                </form>
+
+                {% if otp_enabled and not force_otp_setup %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="disable">
+                    <button type="submit" class="btn btn-outline-danger">Disable OTP</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

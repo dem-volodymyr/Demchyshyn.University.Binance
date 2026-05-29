@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load socialaccount %}
+{% load static %}
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid py-4 px-lg-4">
     <div class="row justify-content-center">
-        <div class="col-lg-11">
+        <div class="col-12">
             <div class="card shadow-lg">
                 <div class="card-header bg-dark text-warning d-flex align-items-center justify-content-between flex-wrap gap-2" style="font-size:1.5rem; font-weight:600; min-height:64px;">
                     <span><i class="fas fa-list me-2"></i> Історія ордерів</span>
@@ -16,18 +16,19 @@
                         <div class="alert alert-danger">{{ error }}</div>
                     {% endif %}
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover align-middle text-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>Order ID</th>
                                     <th>Type</th>
+                                    <th>Mode</th>
                                     <th>Crypto</th>
                                     <th>Quantity</th>
                                     <th>Price (USDT)</th>
                                     <th>Total (USDT)</th>
                                     <th>Status</th>
                                     <th>Created At</th>
-                                    <th>Actions</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -39,6 +40,13 @@
                                                 <span class="badge bg-success"><i class="fas fa-arrow-up"></i> Buy</span>
                                             {% else %}
                                                 <span class="badge bg-danger"><i class="fas fa-arrow-down"></i> Sell</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if order.order_mode == 'market' %}
+                                                <span class="badge bg-info text-dark">Market</span>
+                                            {% else %}
+                                                <span class="badge bg-primary">Limit</span>
                                             {% endif %}
                                         </td>
                                         <td>{{ order.crypto }}</td>
@@ -54,20 +62,24 @@
                                                 <span class="badge bg-secondary">{{ order.status }}</span>
                                             {% endif %}
                                         </td>
-                                        <td>{{ order.created_at }}</td>
-                                        <td>
+                                        <td class="text-muted">{{ order.created_at|date:"Y-m-d H:i:s" }}</td>
+                                        <td class="text-end">
+                                            {% if order.status == 'pending' and order.order_mode == 'limit' %}
                                             <form method="post" action="{% url 'execute_order' order.id %}" style="display:inline;">
                                                 {% csrf_token %}
-                                                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-play"></i></button>
+                                                <button type="submit" class="btn btn-success btn-sm" title="Виконати limit ордер, якщо досягнуто ціни"><i class="fas fa-play"></i></button>
                                             </form>
                                             <form method="post" action="{% url 'delete_order' order.id %}" style="display:inline;">
                                                 {% csrf_token %}
                                                 <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                                             </form>
+                                            {% else %}
+                                                <span class="text-muted small">-</span>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% empty %}
-                                    <tr><td colspan="9" class="text-center text-muted">У вас ще немає ордерів.</td></tr>
+                                    <tr><td colspan="10" class="text-center text-muted">У вас ще немає ордерів.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>

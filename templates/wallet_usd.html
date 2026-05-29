@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <a href="{% url 'wallet' %}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-wallet me-1"></i> User Wallet
+                </a>
+                <a href="{% url 'wallet_history' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-history me-1"></i> Історія транзакцій
+                </a>
+            </div>
+            <div class="card shadow-lg">
+                <div class="card-header bg-dark text-warning d-flex align-items-center" style="font-size:1.5rem; font-weight:600;">
+                    <i class="fas fa-dollar-sign me-2"></i> Псевдо USD операції (1 USDT = 1 USD)
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        USDT баланс: <strong>{{ wallets.usdt }}</strong> (еквівалент USD за курсом 1:1)
+                    </p>
+                    <form method="post" class="row g-3">
+                        {% csrf_token %}
+                        <div class="col-12">
+                            <label for="usd_amount" class="form-label">Сума USD</label>
+                            <input type="number" step="0.01" min="0.01" class="form-control form-control-lg" name="usd_amount" id="usd_amount" required>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" name="action" value="usd_deposit" class="btn btn-success w-100 py-2">
+                                <i class="fas fa-plus-circle me-1"></i> Поповнити USD
+                            </button>
+                            <small class="text-muted d-block mt-1">Миттєве зарахування USDT</small>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" name="action" value="usd_withdraw" class="btn btn-outline-danger w-100 py-2">
+                                <i class="fas fa-minus-circle me-1"></i> Вивести USD
+                            </button>
+                            <small class="text-muted d-block mt-1">Потрібні код з email та 2FA</small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

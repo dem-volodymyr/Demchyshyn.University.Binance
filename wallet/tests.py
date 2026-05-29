@@ -23,7 +23,9 @@ class TransactionModelTest(TestCase):
 class WalletViewTest(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username='testuser', password='pass')
+        self.user = User.objects.create_user(
+            username='testuser', password='pass', email='test@example.com'
+        )
         self.wallet = Wallet.objects.create(address='testuser', btc=10, usdt=1000)
         self.wallet2 = Wallet.objects.create(address='receiver', btc=0, usdt=0)
         self.client.login(username='testuser', password='pass')
@@ -32,12 +34,12 @@ class WalletViewTest(TestCase):
         response = self.client.get(reverse('wallet'))
         self.assertEqual(response.status_code, 200)
 
-    @patch('wallet.views.sent_alert')
-    def test_wallet_post_success(self, mock_alert):
+    @patch('wallet.views.send_verification_email', return_value='123456')
+    def test_wallet_post_redirects_to_confirm(self, mock_send):
         data = {'receiver_wallet_id': 'receiver', 'amount': 1, 'currency': 'BTC'}
         response = self.client.post(reverse('wallet'), data)
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(Transaction.objects.filter(sender_wallet=self.wallet, receiver_wallet=self.wallet2).exists())
+        self.assertEqual(response.url, reverse('wallet_confirm'))
 
     def test_wallet_history(self):
         response = self.client.get(reverse('wallet_history'))

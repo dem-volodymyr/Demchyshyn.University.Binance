@@ -1,22 +1,73 @@
 {% extends "base.html" %}
 {% load static %}
-{% load socialaccount %}
 {% block content %}
 <div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-7">
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg h-100">
+                <div class="card-header bg-dark text-warning d-flex align-items-center" style="font-size:1.3rem; font-weight:600; min-height:64px;">
+                    <i class="fas fa-wallet me-2"></i> Доступний баланс
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Нульові баланси приховані.</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Coin</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Frozen</th>
+                                    <th class="text-end">Available</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in balances %}
+                                    <tr>
+                                        <td><span class="badge bg-secondary">{{ b.currency }}</span></td>
+                                        <td class="text-end">{{ b.total }}</td>
+                                        <td class="text-end text-warning fw-semibold">{{ b.frozen }}</td>
+                                        <td class="text-end fw-semibold {% if b.level == 'danger' %}text-danger{% elif b.level == 'warning' %}text-warning{% else %}text-success{% endif %}">
+                                            {{ b.available }}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">Немає ненульових балансів.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
             <div class="card shadow-lg">
                 <div class="card-header bg-dark text-warning d-flex align-items-center" style="font-size:1.5rem; font-weight:600; min-height:64px;">
                     <i class="fas fa-exchange-alt me-2"></i> Створити ордер
                 </div>
                 <div class="card-body">
+
                     <form method="post">
                         {% csrf_token %}
+                        <div class="alert alert-light border small">
+                            <i class="fas fa-info-circle text-primary me-1"></i>
+                            <strong>Market:</strong> виконується одразу.
+                            <strong class="ms-2">Limit:</strong> виконується тільки при досягненні ціни.
+                        </div>
                         <div class="mb-3">
                             <label for="order_type" class="form-label">Тип ордера</label>
                             <select name="order_type" class="form-select" id="order_type">
                                 <option value="buy">Buy (USDT → Crypto)</option>
                                 <option value="sell">Sell (Crypto → USDT)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="order_mode" class="form-label">Режим ордера</label>
+                            <select name="order_mode" class="form-select" id="order_mode">
+                                <option value="market">Market (виконати одразу)</option>
+                                <option value="limit" selected>Limit (очікувати ціну)</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -30,6 +81,11 @@
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Кількість</label>
                             <input class="form-control" type="number" step="any" name="quantity" id="quantity" required>
+                        </div>
+                        <div class="mb-3" id="limit_price_group">
+                            <label for="limit_price" class="form-label">Лімітна ціна (USDT)</label>
+                            <input class="form-control" type="number" step="any" min="0" name="limit_price" id="limit_price">
+                            <small class="text-muted">Для market-ордера не потрібна.</small>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Створити ордер</button>
                     </form>
@@ -47,4 +103,18 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const mode = document.getElementById('order_mode');
+        const limitGroup = document.getElementById('limit_price_group');
+        const limitInput = document.getElementById('limit_price');
+        function update() {
+            const isLimit = mode.value === 'limit';
+            limitGroup.style.display = isLimit ? 'block' : 'none';
+            limitInput.required = isLimit;
+        }
+        mode.addEventListener('change', update);
+        update();
+    })();
+</script>
 {% endblock %}

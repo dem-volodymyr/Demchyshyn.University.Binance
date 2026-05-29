@@ -10,6 +10,7 @@ from wallet.models import Wallet
 from .market_data_client import MarketDataClient
 from .ml_model_loader import MLModelLoader
 from .order_executor import InsufficientBalanceError, OrderExecutor
+from .quality_gate import ModelQualityGate
 from .risk_manager import RiskManager
 
 
@@ -23,6 +24,7 @@ class AutoTradingService:
         ml_loader: MLModelLoader,
         order_executor: OrderExecutor,
         risk_manager: RiskManager,
+        quality_gate: ModelQualityGate | None = None,
     ):
         self.user = user
         self.config = config
@@ -30,12 +32,34 @@ class AutoTradingService:
         self.ml_loader = ml_loader
         self.order_executor = order_executor
         self.risk_manager = risk_manager
+        self.quality_gate = quality_gate or ModelQualityGate(config)
 
     def run_cycle(self) -> list[AutoTradeLog]:
         logs = []
         for symbol in self.config['pairs']:
             symbol = symbol.upper()
             if not self.ml_loader.has_model(symbol):
+                continue
+            gate_ok, gate_reason = self.quality_gate.passes(symbol)
+            if not gate_ok:
+                logs.append(self._log(
+                    symbol=symbol,
+                    signal='HOLD',
+                    market_price=Decimal('0'),
+                    predicted_price=None,
+                    action_taken='skipped_quality_gate',
+                    reason=gate_reason,
+                ))
+                continue
+            if not self.ml_loader.has_inference_bundle(symbol):
+                logs.append(self._log(
+                    symbol=symbol,
+                    signal='HOLD',
+                    market_price=Decimal('0'),
+                    predicted_price=None,
+                    action_taken='skipped_missing_metadata',
+                    reason='log_return_stats_missing',
+                ))
                 continue
             try:
                 log = self._process_symbol(symbol)
@@ -56,6 +80,7 @@ class AutoTradingService:
     def _process_symbol(self, symbol: str) -> AutoTradeLog | None:
         current_price = self.market_client.get_current_price(symbol)
         market_price = Decimal(str(current_price))
+        open_pos = self.risk_manager.get_open_position(symbol)
 
         exit_reason = self.risk_manager.check_exit(symbol, current_price)
         if exit_reason:
@@ -71,9 +96,9 @@ class AutoTradingService:
             limit=self.config['sequence_length'],
         )
         wallet = Wallet.objects.get(address=self.user.username)
-        field = symbol.lower()
         has_usdt = wallet.usdt >= Decimal(str(self.config['min_usdt_for_buy']))
-        has_crypto = getattr(wallet, field, Decimal('0')) > 0
+        # Bot must only trade its own position, not user manually bought assets.
+        has_crypto = open_pos is not None
 
         signal, predicted = self.ml_loader.get_signal(
             symbol,
@@ -81,8 +106,13 @@ class AutoTradingService:
             current_price,
             has_usdt=has_usdt,
             has_crypto=has_crypto,
-            buy_threshold=self.config['buy_threshold'],
+            buy_return_threshold=self.config.get('buy_return_threshold', 0.003),
+            sell_return_threshold=self.config.get('sell_return_threshold', -0.003),
+            buy_threshold=self.config.get('buy_threshold'),
             min_usdt_for_buy=self.config['min_usdt_for_buy'],
+            signal_centering=self.config.get('signal_centering', True),
+            centered_buy_return_threshold=self.config.get('centered_buy_return_threshold', 0.0),
+            centered_sell_return_threshold=self.config.get('centered_sell_return_threshold', 0.0),
         )
         predicted_dec = Decimal(str(predicted))
 
@@ -103,6 +133,15 @@ class AutoTradingService:
                 market_price=market_price,
                 predicted_price=predicted_dec,
                 action_taken='skipped_already_in_position',
+                reason='model',
+            )
+        if signal == 'SELL' and not open_pos:
+            return self._log(
+                symbol=symbol,
+                signal=signal,
+                market_price=market_price,
+                predicted_price=predicted_dec,
+                action_taken='skipped_no_bot_position',
                 reason='model',
             )
 
@@ -126,6 +165,16 @@ class AutoTradingService:
         wallet = Wallet.objects.get(address=self.user.username)
         market_price = Decimal(str(price))
         quantity = self._calc_quantity(signal, symbol, wallet, price)
+        if signal == 'SELL' and self.risk_manager.get_open_position(symbol) is None:
+            return self._log(
+                symbol=symbol,
+                signal=signal,
+                market_price=market_price,
+                predicted_price=predicted_price,
+                quantity=Decimal('0'),
+                action_taken='skipped_no_bot_position',
+                reason=reason,
+            )
 
         if quantity <= 0:
             return self._log(
@@ -141,6 +190,7 @@ class AutoTradingService:
         order_type = 'buy' if signal == 'BUY' else 'sell'
         try:
             self.order_executor.execute_market_order(
+                user=self.user,
                 wallet=wallet,
                 order_type=order_type,
                 crypto=symbol,
@@ -200,8 +250,10 @@ class AutoTradingService:
             if usdt <= 0 or price <= 0:
                 return Decimal('0')
             return (usdt / Decimal(str(price))).quantize(Decimal('0.00000001'))
-        balance = getattr(wallet, field, Decimal('0'))
-        return balance
+        pos = self.risk_manager.get_open_position(symbol)
+        if not pos:
+            return Decimal('0')
+        return Decimal(pos.quantity)
 
     def _log(
         self,
@@ -228,17 +280,29 @@ class AutoTradingService:
         )
 
 
-def build_auto_trading_service(setting: 'AutoTradeSettings') -> AutoTradingService:
+def build_auto_trading_service(
+    setting: 'AutoTradeSettings | None' = None,
+    *,
+    user: User | None = None,
+) -> AutoTradingService:
     config = get_auto_trading_config()
 
-    # Override config with user settings
-    config['pairs'] = [setting.symbol]
-    config['position_size_usdt'] = float(setting.trade_amount_usdt)
-    config['stop_loss_pct'] = float(setting.stop_loss_pct)
-    config['take_profit_pct'] = float(setting.take_profit_pct)
+    if setting is not None:
+        user = setting.user
+        config['pairs'] = [setting.symbol]
+        config['position_size_usdt'] = float(setting.trade_amount_usdt)
+        config['stop_loss_pct'] = float(setting.stop_loss_pct)
+        config['take_profit_pct'] = float(setting.take_profit_pct)
+    elif user is None:
+        username = config.get('username')
+        if not username:
+            raise ValueError(
+                'Set AUTO_TRADING.username or pass AutoTradeSettings / user to build_auto_trading_service'
+            )
+        user = User.objects.get(username=username)
 
     return AutoTradingService(
-        user=setting.user,
+        user=user,
         config=config,
         market_client=MarketDataClient(sequence_length=config['sequence_length']),
         ml_loader=MLModelLoader(
@@ -247,10 +311,11 @@ def build_auto_trading_service(setting: 'AutoTradeSettings') -> AutoTradingServi
         ),
         order_executor=OrderExecutor(),
         risk_manager=RiskManager(
-            user=setting.user,
+            user=user,
             stop_loss_pct=config['stop_loss_pct'],
             take_profit_pct=config['take_profit_pct'],
         ),
+        quality_gate=ModelQualityGate(config),
     )
 
 

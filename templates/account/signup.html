@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load socialaccount %}
 
 {% block title %}Sign Up - Xchange{% endblock %}
 
@@ -13,17 +12,7 @@
             </div>
             <div class="card-body p-4">
                 
-                <a href="{% provider_login_url 'google' %}?next=/" class="btn btn-outline-dark w-100 mb-4" style="border-radius: 8px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <i class="fab fa-google text-danger"></i> Sign up with Google
-                </a>
-
-                <div class="d-flex align-items-center mb-4">
-                    <hr class="flex-grow-1" style="border-color: var(--border-color);">
-                    <span class="px-3 text-muted" style="font-size: 13px;">OR</span>
-                    <hr class="flex-grow-1" style="border-color: var(--border-color);">
-                </div>
-
-                <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+                <form class="signup" id="signup_form" method="post" action="{% url 'signup' %}">
                     {% csrf_token %}
                     
                     {% if form.non_field_errors %}
@@ -51,14 +40,11 @@
 
                     <button type="submit" class="btn btn-primary w-100 py-2 mt-2" style="font-size: 16px; border-radius: 8px;">Sign Up</button>
                     
-                    {% if redirect_field_value %}
-                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-                    {% endif %}
                 </form>
 
                 <div class="text-center mt-4" style="font-size: 14px;">
                     <span class="text-muted">Already have an account?</span> 
-                    <a href="{{ login_url }}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Log In</a>
+                    <a href="{% url 'login' %}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Log In</a>
                 </div>
             </div>
         </div>

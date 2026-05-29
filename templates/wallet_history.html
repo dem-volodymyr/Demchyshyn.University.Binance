@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load socialaccount %}
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -9,6 +8,14 @@
                     <i class="fas fa-history me-2"></i> Історія транзакцій
                 </div>
                 <div class="card-body">
+                    <div class="mb-3">
+                        <a href="{% url 'wallet' %}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-wallet me-1"></i> User Wallet
+                        </a>
+                        <a href="{% url 'wallet_usd' %}" class="btn btn-outline-success">
+                            <i class="fas fa-dollar-sign me-1"></i> USD операції
+                        </a>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">

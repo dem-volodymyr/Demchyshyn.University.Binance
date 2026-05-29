@@ -4,8 +4,16 @@ from wallet.models import Wallet
 
 
 class Order(models.Model):
+    ORDER_MODE_MARKET = 'market'
+    ORDER_MODE_LIMIT = 'limit'
+    ORDER_MODE_CHOICES = [
+        (ORDER_MODE_MARKET, 'Market'),
+        (ORDER_MODE_LIMIT, 'Limit'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_type = models.CharField(max_length=4, choices=[('buy', 'Buy'), ('sell', 'Sell')], default='sell')  # buy or sell
+    order_mode = models.CharField(max_length=10, choices=ORDER_MODE_CHOICES, default=ORDER_MODE_LIMIT)
     crypto = models.CharField(max_length=10, default='BTC')  # e.g. BTC, ETH, etc.
     quantity = models.DecimalField(max_digits=18, decimal_places=8)
     price = models.DecimalField(max_digits=18, decimal_places=8)  # price per 1 crypto in USDT

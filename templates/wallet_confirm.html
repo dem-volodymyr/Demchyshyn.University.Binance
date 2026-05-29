@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Підтвердження операції - Xchange{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0" style="border-radius: 16px;">
+                <div class="card-header text-center bg-dark text-warning" style="padding: 24px 20px 12px; border-bottom: none;">
+                    <h3 class="mb-1" style="font-size: 22px;"><i class="fas fa-shield-alt me-2"></i>{{ operation_label }}</h3>
+                    <p class="text-muted mb-0" style="font-size: 14px;">Введіть код з email та 2FA токен</p>
+                </div>
+                <div class="card-body p-4">
+                    <ul class="list-group list-group-flush mb-4">
+                        {% for label, value in operation_details %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">{{ label }}</span>
+                            <strong>{{ value }}</strong>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="email_code" class="form-label">Код з email</label>
+                            <input type="text" class="form-control form-control-lg" name="email_code" id="email_code" maxlength="6" required autocomplete="one-time-code" placeholder="123456">
+                        </div>
+                        <div class="mb-4">
+                            <label for="otp_token" class="form-label">2FA токен</label>
+                            <input type="text" class="form-control form-control-lg" name="otp_token" id="otp_token" maxlength="6" required autocomplete="one-time-code" placeholder="123456">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 mb-2">Підтвердити операцію</button>
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="cancel">
+                        <button type="submit" class="btn btn-outline-secondary w-100">Скасувати</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

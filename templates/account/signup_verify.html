@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Email - Xchange{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-lg border-0" style="border-radius: 16px;">
+            <div class="card-header text-center" style="background: var(--bg-card); padding: 30px 20px 10px; border-bottom: none;">
+                <h3 class="card-title mb-1" style="font-size: 24px;">Email Verification</h3>
+                <p class="text-muted" style="font-size: 14px;">We sent a 6-digit code to {{ email }}</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="verification_code" class="form-label text-muted" style="font-size: 14px; font-weight: 500;">Verification code</label>
+                        <input type="text" id="verification_code" name="verification_code" class="form-control form-control-lg" maxlength="6" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2" style="font-size: 16px; border-radius: 8px;">Verify and continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

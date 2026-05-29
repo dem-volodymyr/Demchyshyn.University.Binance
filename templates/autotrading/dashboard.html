@@ -145,7 +145,27 @@
                     </div>
                     {% endif %}
 
-                    <h5 class="mb-3"><i class="fas fa-history text-warning me-2"></i>Журнал сигналів та угод</h5>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h5 class="mb-0"><i class="fas fa-history text-warning me-2"></i>Журнал сигналів та угод</h5>
+                        <div class="d-flex gap-2">
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="clear_logs">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-eye-slash me-1"></i> Приховати історію
+                                </button>
+                            </form>
+                            {% if logs_hidden_before %}
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="show_all_logs">
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-rotate-left me-1"></i> Показати все
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
@@ -194,8 +214,7 @@
                                 {% empty %}
                                 <tr>
                                     <td colspan="8" class="text-center text-muted py-4">
-                                        Поки немає записів. Запустіть <code>python manage.py run_autotrading</code>
-                                        після налаштування бота.
+                                        Поки немає записів. Створіть ордер або оновіть сторінку
                                     </td>
                                 </tr>
                                 {% endfor %}

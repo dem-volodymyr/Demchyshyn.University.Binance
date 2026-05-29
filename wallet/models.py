@@ -15,6 +15,88 @@ class Wallet(models.Model):
     matic = models.DecimalField(max_digits=18, decimal_places=8, default=0)
     dot = models.DecimalField(max_digits=18, decimal_places=8, default=0)
 
+    def _field_for_currency(self, currency: str) -> str:
+        field = currency.lower()
+        if field not in {
+            'usdt', 'btc', 'eth', 'bnb', 'sol', 'xrp', 'avax', 'ada', 'matic', 'dot'
+        }:
+            raise ValueError(f'Unsupported currency: {currency}')
+        return field
+
+    def get_balance(self, currency: str) -> Decimal:
+        field = self._field_for_currency(currency)
+        return Decimal(getattr(self, field))
+
+    def get_frozen(self, currency: str, *, reason: str | None = None) -> Decimal:
+        qs = FrozenBalance.objects.filter(wallet=self, currency=currency.upper(), is_active=True)
+        if reason:
+            qs = qs.filter(reason=reason)
+        return Decimal(qs.aggregate(total=models.Sum('amount'))['total'] or Decimal('0'))
+
+    def get_available_balance(self, currency: str, *, reason: str | None = None) -> Decimal:
+        return self.get_balance(currency) - self.get_frozen(currency, reason=reason)
+
+    def freeze(self, *, currency: str, amount: Decimal, reason: str, reference: str) -> 'FrozenBalance':
+        amount = Decimal(amount)
+        if amount <= 0:
+            raise ValueError('Freeze amount must be positive')
+        available = self.get_available_balance(currency)
+        if available < amount:
+            raise ValueError(
+                f'Insufficient available {currency}: have {available}, need {amount}'
+            )
+        frozen, _ = FrozenBalance.objects.get_or_create(
+            wallet=self,
+            currency=currency.upper(),
+            reason=reason,
+            reference=reference,
+            defaults={'amount': Decimal('0'), 'is_active': True},
+        )
+        frozen.amount = Decimal(frozen.amount) + amount
+        frozen.is_active = True
+        frozen.save(update_fields=['amount', 'is_active', 'updated_at'])
+        return frozen
+
+    def unfreeze(self, *, currency: str, amount: Decimal, reason: str, reference: str) -> Decimal:
+        amount = Decimal(amount)
+        if amount <= 0:
+            return Decimal('0')
+        frozen = FrozenBalance.objects.filter(
+            wallet=self,
+            currency=currency.upper(),
+            reason=reason,
+            reference=reference,
+            is_active=True,
+        ).first()
+        if not frozen:
+            return Decimal('0')
+        release = min(Decimal(frozen.amount), amount)
+        frozen.amount = Decimal(frozen.amount) - release
+        if frozen.amount <= 0:
+            frozen.amount = Decimal('0')
+            frozen.is_active = False
+        frozen.save(update_fields=['amount', 'is_active', 'updated_at'])
+        return release
+
+
+class FrozenBalance(models.Model):
+    REASON_ORDER = 'order'
+    REASON_CHOICES = [
+        (REASON_ORDER, 'Order'),
+    ]
+
+    wallet = models.ForeignKey(Wallet, related_name='frozen_balances', on_delete=models.CASCADE)
+    currency = models.CharField(max_length=10)
+    amount = models.DecimalField(max_digits=18, decimal_places=8, default=0)
+    reason = models.CharField(max_length=20, choices=REASON_CHOICES, default=REASON_ORDER)
+    reference = models.CharField(max_length=64)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('wallet', 'currency', 'reason', 'reference')
+
 
 class Transaction(models.Model):
     sender_wallet = models.ForeignKey(Wallet, related_name='sender_wallet', on_delete=models.CASCADE)

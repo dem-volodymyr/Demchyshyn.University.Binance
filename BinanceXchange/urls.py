@@ -6,7 +6,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include("allauth.urls")),
     path('qr_code/', include('qr_code.urls', namespace="qr_code")),
     path('', include('binance_register.urls')),
     path('', include('tracker.urls')),

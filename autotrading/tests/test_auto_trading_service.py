@@ -8,6 +8,7 @@ from django.test import TestCase, override_settings
 from autotrading.models import AutoTradeLog, AutoPosition
 from autotrading.services.auto_trading_service import AutoTradingService
 from autotrading.services.order_executor import InsufficientBalanceError
+from autotrading.services.quality_gate import ModelQualityGate
 from autotrading.services.risk_manager import RiskManager
 from wallet.models import Wallet
 
@@ -36,7 +37,13 @@ class AutoTradingServiceTest(TestCase):
 
         self.ml = MagicMock()
         self.ml.has_model.return_value = True
+        self.ml.has_inference_bundle.return_value = True
         self.ml.get_signal.return_value = ('BUY', 66000.0)
+
+        self.gate = MagicMock()
+        self.gate.passes.return_value = (True, 'ok')
+
+        self.market.get_ml_features.return_value = np.zeros((60, 11))
 
         self.executor = MagicMock()
         self.risk = RiskManager(self.user, stop_loss_pct=0.02, take_profit_pct=0.05)
@@ -47,6 +54,8 @@ class AutoTradingServiceTest(TestCase):
                 'pairs': ['BTC'],
                 'position_size_usdt': 100,
                 'buy_threshold': 1.005,
+                'buy_return_threshold': 0.003,
+                'sell_return_threshold': -0.003,
                 'min_usdt_for_buy': 10,
                 'sequence_length': 60,
             },
@@ -54,6 +63,7 @@ class AutoTradingServiceTest(TestCase):
             ml_loader=self.ml,
             order_executor=self.executor,
             risk_manager=self.risk,
+            quality_gate=self.gate,
         )
 
     def test_execute_trade_buy_creates_log_and_position(self):
@@ -69,6 +79,14 @@ class AutoTradingServiceTest(TestCase):
         log = self.service.execute_trade('BUY', 'BTC', 65000.0)
 
         self.assertEqual(log.action_taken, 'skipped_insufficient_balance')
+
+    def test_run_cycle_skipped_quality_gate(self):
+        self.gate.passes.return_value = (False, 'csv_R2')
+        logs = self.service.run_cycle()
+
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0].action_taken, 'skipped_quality_gate')
+        self.executor.execute_market_order.assert_not_called()
 
     def test_run_cycle_hold_signal(self):
         self.ml.get_signal.return_value = ('HOLD', 64000.0)

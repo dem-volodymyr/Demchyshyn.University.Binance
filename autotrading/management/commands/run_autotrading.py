@@ -13,6 +13,14 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('AUTO_TRADING.enabled is False — skipping.'))
             return
 
+        from autotrading.models import AutoTradeSettings
+        from autotrading.services.auto_trading_service import run_all_cycles
+
+        if AutoTradeSettings.objects.filter(is_active=True).exists():
+            run_all_cycles()
+            self.stdout.write(self.style.SUCCESS('Cycles complete for active AutoTradeSettings.'))
+            return
+
         service = build_auto_trading_service()
         logs = service.run_cycle()
 
