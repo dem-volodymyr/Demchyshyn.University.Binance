@@ -2,7 +2,7 @@
 
 Веб-платформа та ML-пайплайн для прогнозування денної лог-прибутковості криптовалют, генерації сигналів BUY/SELL/HOLD і виконання угод у симульованому гаманці з контролем ризику (stop-loss / take-profit) та допуском моделей через quality gate.
 
-Розгорнутий технічний опис архітектури та методології — у ноутбуці `LSTM_Predictor.ipynb`. Зведені метрики навчання — у `reports/metrics_extended.csv`.
+Розгорнутий технічний опис архітектури та методології — у ноутбуці `LSTM_Predictor.ipynb`. Зведені метрики навчання — у `reports/metrics_extended.csv`. **Додатки до кваліфікаційної роботи** (А–Д): [`docs/ДОДАТКИ.md`](docs/ДОДАТКИ.md). Фрагменти коду розд. 3 (1–27, TXT): [`docs/ДОДАТОК_В_фрагменти.txt`](docs/ДОДАТОК_В_фрагменти.txt). **Усі Mermaid-діаграми розділів 1–4:** [`docs/MERMAID_DIAGRAMS.md`](docs/MERMAID_DIAGRAMS.md).
 
 ## Автор
 
@@ -234,9 +234,461 @@ docker compose up --build
 
 ## Використані джерела
 
-1. Hochreiter S., Schmidhuber J. Long Short-Term Memory. *Neural Computation*, 1997.
-2. Fischer T., Krauss C. Deep learning with long short-term memory networks for financial market predictions. *European Journal of Operational Research*, 2018.
-3. Sezer O. B. et al. Financial time series forecasting with deep learning: A systematic literature review. *Applied Soft Computing*, 2020.
-4. Goodfellow I., Bengio Y., Courville A. *Deep Learning*. MIT Press, 2016.
-5. Géron A. *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow* (3rd ed.). O'Reilly, 2022.
-6. Офіційна документація Django, TensorFlow/Keras, pandas, yfinance, CoinGecko API.
+1. Goodfellow I., Bengio Y., Courville A. Deep Learning. MIT Press, 2016.
+2. Fama E. Efficient Capital Markets: A Review of Theory and Empirical Work // Journal 
+of Finance. 1970.
+3. Fischer T., Krauss C. Deep learning with long short-term memory networks for 
+financial market predictions // European Journal of Operational Research. 2018. Vol. 
+270. P. 654–669.
+4. Sezer O. B. et al. Financial time series forecasting with deep learning: A systematic 
+literature review // Applied Soft Computing. 2020. Vol. 90. 106181.
+5. Chan E. Algorithmic Trading: Winning Strategies and Their Rationale. Wiley, 2013.
+6. Hull J. Options, Futures, and Other Derivatives. Pearson, 2018.
+7. yfinance Documentation. [Електронний ресурс]. - URL: https://ranaroussi.github.
+io/yfinance/ (дата звернення: 29.05.2026).
+8. CoinGecko API Documentation. [Електронний ресурс]. - URL: https://docs.
+coingecko.com/reference/simple-price (дата звернення: 29.05.2026).
+9. Murphy J. Technical Analysis of the Financial Markets. NYIF, 1999.
+10. Hyndman R., Athanasopoulos G. Forecasting: Principles and Practice. OTexts, 2021.
+11. Sutton R., Barto A. Reinforcement Learning: An Introduction. MIT Press, 2018.
+12. López de Prado M. Advances in Financial Machine Learning. Wiley, 2018.
+13. Brownlee J. Deep Learning for Time Series Forecasting. Machine Learning Mastery, 
+2018.
+14. Keras API. Timeseries data loading. [Електронний ресурс]. - URL: https://keras.io/
+api/data_loading/timeseries/ (дата звернення: 29.05.2026).
+15. Hochreiter S., Schmidhuber J. Long Short-Term Memory // Neural Computation. 
+1997. Vol. 9. P. 1735–1780.
+16. Chollet F. Deep Learning with Python. Manning, 2021.
+17. TensorFlow. Time series forecasting tutorial. [Електронний ресурс]. - URL: https://
+tensorflow.org/tutorials/structured_data/time_series (дата звернення: 29.05.2026).
+18. Gebru T. et al. Datasheets for Datasets // Communications of the ACM. 2021.
+19. Mitchell M. et al. Model Cards for Model Reporting // Proceedings of FAT*. 2019.
+59
+20. DVC Documentation. [Електронний ресурс]. - URL: https://dvc.org/doc (дата 
+звернення: 29.05.2026).
+21. MLflow Documentation. [Електронний ресурс]. - URL: https://mlflow.org/docs/
+latest/index.html (дата звернення: 29.05.2026).
+22. Weights & Biases Documentation. [Електронний ресурс]. - URL: https://docs.
+wandb.ai/ (дата звернення: 29.05.2026).
+23. Nygard M. Documenting Architecture Decisions. Cognitect, 2011.
+24. Binance Spot API: Trading endpoints. [Електронний ресурс]. - URL: https://
+developers.binance.com/docs/binance-spot-api-docs/rest-api/trading-endpoints (да
+та звернення: 29.05.2026).
+25. Martin R. C. Clean Architecture: A Craftsman's Guide to Software Structure and 
+Design. Prentice Hall, 2017.
+26. Fowler M. Patterns of Enterprise Application Architecture. Addison-Wesley, 2002.
+27. Brown S. The C4 Model for Visualising Software Architecture. [Електронний 
+ресурс]. - URL: https://c4model.com/ (дата звернення: 29.05.2026).
+28. Django Documentation. [Електронний ресурс]. - URL: https://docs.djangoproject.
+com/ (дата звернення: 29.05.2026).
+29. Python Documentation. [Електронний ресурс]. - URL: https://docs.python.org/3/ 
+(дата звернення: 29.05.2026).
+30. Binance Spot API: Request security. [Електронний ресурс]. - URL: https://
+developers.binance.com/docs/binance-spot-api-docs/rest-api/request-security (дата 
+звернення: 29.05.2026).
+31. pandas Documentation. [Електронний ресурс]. - URL: https://pandas.pydata.org/
+docs/ (дата звернення: 29.05.2026).
+32. NumPy Documentation. [Електронний ресурс]. - URL: https://numpy.org/doc/ 
+(дата звернення: 29.05.2026).
+33. Scikit-learn User Guide. [Електронний ресурс]. - URL: https://scikit-learn.org/
+stable/user_guide.html (дата звернення: 29.05.2026).
+34. joblib Documentation. [Електронний ресурс]. - URL: https://joblib.readthedocs.io/ 
+(дата звернення: 29.05.2026).
+
+## UML-Діагрмами
+## Розділ 1. Аналіз предметної області
+
+### Рис. 1.2
+
+```mermaid
+flowchart LR
+    subgraph external [Зовнішнє середовище]
+        YF[yfinance / Yahoo Finance]
+        CG[CoinGecko API]
+    end
+
+    subgraph system [BinanceXchange]
+        WEB[Веб-інтерфейс Django]
+        BOT[AutoTradingService]
+        ML[LSTM + Quality Gate]
+        WAL[Симульований Wallet]
+    end
+
+    U[Користувач-трейдер] --> WEB
+    U --> BOT
+    YF --> ML
+    CG --> BOT
+    ML --> BOT
+    BOT --> WAL
+    WEB --> WAL
+```
+### Рис. 1.7
+```mermaid
+flowchart TB
+    NB[LSTM_Predictor.ipynb] --> ART[models/*.keras + meta.gz]
+    ART --> CSV[reports/metrics_extended.csv]
+    CSV --> GATE[ModelQualityGate]
+    GATE -->|pass| BOT[AutoTradingService]
+    GATE -->|fail| SKIP[skipped_quality_gate]
+    BOT --> LOG[AutoTradeLog]
+    CAL[calibrate_signal_bias] --> ART
+```
+### Рис. 1.11
+```mermaid
+flowchart TB
+    subgraph clients [Клієнтський рівень]
+        Browser[Браузер користувача]
+    end
+
+    subgraph app [Django Application]
+        TrackerApp[tracker — ринок]
+        WalletApp[wallet — баланси]
+        OrderApp[Order — ручні угоди]
+        AutoApp[autotrading — бот]
+    end
+
+    subgraph ml [ML-шар]
+        ModelsDir[(models/)]
+        Reports[(reports/)]
+    end
+
+    subgraph data [Сховище]
+        DB[(PostgreSQL)]
+    end
+
+    Browser --> TrackerApp
+    Browser --> WalletApp
+    Browser --> OrderApp
+    Browser --> AutoApp
+    AutoApp --> ModelsDir
+    AutoApp --> Reports
+    AutoApp --> DB
+    TrackerApp --> DB
+    WalletApp --> DB
+    OrderApp --> DB
+```
+---
+
+## Розділ 2. Архітектура та проєктування
+
+### Рис. 2.2
+
+```mermaid
+flowchart TB
+    User[Користувач / трейдер]
+
+    subgraph BinanceXchange [BinanceXchange — АТС з LSTM]
+        System[Веб-платформа + торговий бот + ML-інференс]
+    end
+
+    YF[(Yahoo Finance / yfinance)]
+    CG[(CoinGecko API)]
+
+    User -->|реєстрація, налаштування бота, перегляд логів| System
+    System -->|історичні OHLCV, ознаки| YF
+    System -->|поточна ціна USD| CG
+    System -->|симульовані угоди, баланси| User
+```
+
+### Рис. 2.3
+
+```mermaid
+flowchart TB
+    Browser[Браузер]
+
+    subgraph WebTier [Веб-рівень — Gunicorn + Django]
+        TrackerC[tracker<br/>ринковий дашборд]
+        WalletC[wallet<br/>гаманець]
+        OrderC[Order<br/>ручні ордери]
+        AuthC[binance_register<br/>автентифікація]
+        AutoWebC[autotrading/views<br/>дашборд бота]
+    end
+
+    subgraph BotTier [Фоновий процес]
+        BotProc[run_autotrading_bot<br/>management command]
+        ATS[AutoTradingService]
+    end
+
+    subgraph MLS [ML-артефакти — файли]
+        Models[(models/*.keras<br/>*_scaler.gz<br/>*_meta.gz)]
+        Metrics[(reports/metrics_extended.csv)]
+    end
+
+    subgraph DataTier [Сховище]
+        DB[(PostgreSQL)]
+    end
+
+    YF[(yfinance)]
+    CG[(CoinGecko)]
+
+    Browser --> WebTier
+    AutoWebC -->|subprocess run_autotrading| BotProc
+    BotProc --> ATS
+    ATS --> Models
+    ATS --> Metrics
+    ATS --> DB
+    WebTier --> DB
+    ATS --> CG
+    ATS --> YF
+    TrackerC --> CG
+```
+
+### Рис. 2.4
+
+```mermaid
+flowchart TB
+    subgraph AutoTradingModule [autotrading/services]
+        ATS[AutoTradingService]
+        MDC[MarketDataClient]
+        MLL[MLModelLoader]
+        MQG[ModelQualityGate]
+        RM[RiskManager]
+        OE[OrderExecutor]
+        MM[model_metadata]
+    end
+
+    subgraph DjangoModels [autotrading/models.py]
+        Settings[AutoTradeSettings]
+        Pos[AutoPosition]
+        Log[AutoTradeLog]
+    end
+
+    subgraph External [Зовнішні залежності]
+        YF[yfinance]
+        CG[CoinGecko]
+        Files[models/ + reports/]
+        WalletM[wallet.Wallet]
+        OrderM[Order.Order]
+    end
+
+    ATS --> MQG
+    ATS --> MDC
+    ATS --> MLL
+    ATS --> RM
+    ATS --> OE
+    ATS --> Log
+    MLL --> MM
+    MLL --> Files
+    MQG --> Files
+    MQG --> MM
+    MDC --> YF
+    MDC --> CG
+    RM --> Pos
+    OE --> WalletM
+    OE --> OrderM
+    build[build_auto_trading_service] --> ATS
+    Settings --> build
+```
+
+### Рис. 2.5
+
+```mermaid
+flowchart TB
+    subgraph Presentation [Presentation Layer]
+        Templates[HTML templates]
+        Views[Django views]
+    end
+
+    subgraph Application [Application Layer]
+        ATSvc[AutoTradingService]
+        Dashboard[autotrading/views.dashboard]
+        OrderViews[Order/views]
+    end
+
+    subgraph Domain [Domain / Business Logic]
+        Risk[RiskManager]
+        Gate[ModelQualityGate]
+        SignalLogic[MLModelLoader.get_signal]
+    end
+
+    subgraph Infrastructure [Infrastructure Layer]
+        MDC[MarketDataClient]
+        OExec[OrderExecutor]
+        ORM[Django ORM]
+        MLFiles[models/, reports/]
+    end
+
+    Templates --> Views
+    Views --> Dashboard
+    Views --> OrderViews
+    Dashboard --> ATSvc
+    ATSvc --> Risk
+    ATSvc --> Gate
+    ATSvc --> SignalLogic
+    ATSvc --> MDC
+    ATSvc --> OExec
+    Risk --> ORM
+    OExec --> ORM
+    Gate --> MLFiles
+    SignalLogic --> MLFiles
+    MDC --> MDC
+```
+
+### Рис. 2.6
+
+```mermaid
+flowchart LR
+    User((Користувач))
+    Admin((Адмін))
+
+    UC1[Перегляд ринку]
+    UC2[Керування гаманцем]
+    UC3[Ручна торгівля]
+    UC4[Налаштування бота]
+    UC5[Перегляд логів і позицій]
+    UC6[Запуск торгового циклу]
+    UC7[Автоматична торгівля]
+
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    Admin --> UC6
+    UC4 --> UC7
+    UC6 --> UC7
+    UC7 --> UC5
+```
+
+### Рис. 2.7
+
+```mermaid
+erDiagram
+    User ||--o{ AutoTradeSettings : configures
+    User ||--o{ AutoTradeLog : owns
+    User ||--o{ AutoPosition : holds
+    User ||--o{ Order : places
+    User ||--|| Wallet : has
+
+    Wallet ||--o{ FrozenBalance : freezes
+    Wallet ||--o{ Transaction : records
+
+    Cryptocurrency ||--o{ CryptocurrencyPrice : has
+
+    User {
+        int id PK
+        string username
+    }
+
+    Wallet {
+        int id PK
+        string address
+        decimal usdt
+        decimal btc
+        decimal eth
+    }
+
+    AutoTradeSettings {
+        int id PK
+        int user_id FK
+        string symbol
+        bool is_active
+        decimal stop_loss_pct
+        decimal take_profit_pct
+        decimal trade_amount_usdt
+    }
+
+    AutoPosition {
+        int id PK
+        int user_id FK
+        string symbol
+        decimal quantity
+        decimal entry_price
+        decimal stop_loss
+        decimal take_profit
+        bool is_open
+    }
+
+    AutoTradeLog {
+        int id PK
+        int user_id FK
+        string symbol
+        string signal
+        decimal market_price
+        decimal predicted_price
+        string action_taken
+        string reason
+        datetime created_at
+    }
+
+    Order {
+        int id PK
+        int user_id FK
+        string order_type
+        string order_mode
+        string crypto
+        decimal quantity
+        decimal price
+        string status
+    }
+```
+
+### Рис. 2.8
+
+```mermaid
+flowchart LR
+    subgraph Offline [Offline — навчання]
+        NB[LSTM_Predictor.ipynb]
+        NB --> Keras[*.keras]
+        NB --> Scaler[*_scaler.gz]
+        NB --> Meta[*_meta.gz v2]
+        NB --> CSV[metrics_extended.csv]
+    end
+
+    subgraph Online [Online — інференс]
+        MLL[MLModelLoader]
+        Gate[ModelQualityGate]
+        Keras --> MLL
+        Scaler --> MLL
+        Meta --> MLL
+        CSV --> Gate
+        Meta --> Gate
+    end
+```
+
+### Рис. 2.9
+
+```mermaid
+flowchart LR
+    subgraph Core [BinanceXchange]
+        URLs[urls.py]
+        Settings[settings.py]
+    end
+
+    subgraph Apps [INSTALLED_APPS]
+        A1[tracker]
+        A2[wallet]
+        A3[Order]
+        A4[autotrading]
+        A5[binance_register]
+        A6[edit_profile]
+        A7[support]
+        A8[referral]
+    end
+
+    URLs --> Apps
+    Settings --> Apps
+```
+
+### Рис. 2.10
+
+```mermaid
+flowchart TB
+    subgraph DockerHost [Docker Host]
+        subgraph Compose [docker-compose.yml]
+            WebCont[web: Gunicorn :8000]
+            BotCont[autotrading_bot]
+            PGCont[db: PostgreSQL 15]
+        end
+        Vol[(postgres_data volume)]
+    end
+
+    User[Користувач] -->|HTTP :8000| WebCont
+    WebCont --> PGCont
+    BotCont --> PGCont
+    PGCont --> Vol
+    WebCont --> ModelsMount[./models mounted]
+    BotCont --> ModelsMount
+```
+
+---
